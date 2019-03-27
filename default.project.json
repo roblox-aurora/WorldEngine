@@ -9,6 +9,13 @@
 				"$className": "Folder",
 				"$path": "lib/shared"
 			}
+		},
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"WorldEngine": {
+				"$className": "Folder",
+				"$path": "lib/server"
+			}
 		}
 	}
 }

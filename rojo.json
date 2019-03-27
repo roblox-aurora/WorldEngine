@@ -5,6 +5,10 @@
 		"shared": {
 			"path": "lib/shared",
 			"target": "ReplicatedStorage.Libraries"
+		},
+		"server": {
+			"path": "lib/server",
+			"target": "ServerScriptService.WorldEngine"
 		}
 	}
 }
