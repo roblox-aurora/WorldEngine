@@ -1,0 +1,10 @@
+{
+	"name": "WorldEngine",
+	"servePort": 8000,
+	"partitions": {
+		"shared": {
+			"path": "lib/shared",
+			"target": "ReplicatedStorage.Libraries"
+		}
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"name": "WorldEngine",
+	"servePort": 8000,
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"Libraries": {
+				"$className": "Folder",
+				"$path": "lib/shared"
+			}
+		}
+	}
+}
