@@ -1,0 +1,21 @@
+language: python
+sudo: false
+
+branches:
+  only:
+    - master
+
+env:
+  - LUA="lua=5.1"
+
+before_install:
+  - pip install hererocks # Lua
+  - hererocks lua_install -r^ --$LUA
+  - export PATH=$PATH:$PWD/lua_install/bin
+
+install:
+  - luarocks install luafilesystem
+  - luarocks install dkjson
+
+script:
+  - lua lib/spec.lua
