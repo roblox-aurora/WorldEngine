@@ -1,4 +1,4 @@
-local Libraries = game:GetService("ReplicatedStorage"):WaitForChild("Libraries")
+local Libraries = game:GetService("ReplicatedStorage"):WaitForChild("WorldEngine")
 local Object = require(Libraries:WaitForChild("Object"))
 local t = require(Libraries:WaitForChild("t"))
 -- local qt = require(script.Parent.validator)
@@ -10,6 +10,10 @@ function QuestObjective:constructor(stage, description)
 	assert(questObjectiveConstructorValidator(stage, description))
 	self.Stage = stage
 	self.Description = description
+end
+
+function QuestObjective:GetDescription()
+	return self.Description
 end
 
 return QuestObjective

@@ -11,7 +11,7 @@ return function()
 		"should handle adding quest objectives",
 		function()
 			local myQuest = Quest.new("quest-obj-one", "Quest Objectives 1");
-			myQuest:AddObjective(TestObjective.new(1, "Test Objective"))
+			myQuest:AddObjective(TestObjective.new(1))
 
 			local objs = myQuest:GetObjectives()
 			local firstObj = objs[1]

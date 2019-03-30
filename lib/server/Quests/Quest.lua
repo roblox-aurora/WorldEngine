@@ -1,4 +1,4 @@
-local Libraries = game:GetService("ReplicatedStorage"):WaitForChild("Libraries")
+local Libraries = game:GetService("ReplicatedStorage"):WaitForChild("WorldEngine")
 local Object = require(Libraries:WaitForChild("Object"))
 local QuestObjective = require(script.Parent.QuestObjective)
 local t = require(Libraries:WaitForChild("t"))
