@@ -1,0 +1,4 @@
+#!/bin/bash
+lua -lluacov spec.lua
+luacov
+tail -500 luacov.report.out | egrep '/*.lua |File|----' #> luacov.result.log
