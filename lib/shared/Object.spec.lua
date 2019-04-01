@@ -64,6 +64,13 @@ return function()
 				expect(instance.a).to.equal("Hello")
 				expect(instance.b).to.equal("World")
 			end)
+
+			it("should not allow creation of abstract objects", function()
+				local TestClass6 = Object:Extend("AbstractClass", {abstract = true})
+				expect(function()
+					TestClass6.new()
+				end).to.throw()
+			end)
 		end
 	)
 

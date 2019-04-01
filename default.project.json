@@ -5,7 +5,7 @@
 		"$className": "DataModel",
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
-			"Libraries": {
+			"WorldEngine": {
 				"$className": "Folder",
 				"$path": "lib/shared"
 			}

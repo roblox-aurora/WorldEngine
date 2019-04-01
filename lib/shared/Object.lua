@@ -32,7 +32,7 @@ function Object.Enum(_, name, values)
 		enum[value] = enum.new(value, idx)
 	end
 
-	enum.new = nil;
+	enum.new = nil
 
 	return enum
 end
@@ -44,6 +44,7 @@ function Object:Extend(name, options)
 
 	options = options or {}
 	local sealed = options.sealed or false
+	local abstract = options.abstract or false
 
 	if (registry[name]) then
 		error("Duplicate class `" .. tostring(name) .. "`.", 2)
@@ -119,28 +120,34 @@ function Object:Extend(name, options)
 	end
 
 	-- Handler for X.new(...) - Calls X.constructor(...) internally
-	function class.new(...)
-		local meta = {
-			_base = super,
-			_class = class,
-			__index = class,
-			_instance = true,
-			__tostring = function(self)
-				if type(self.tostring) == "function" then
-					return self:tostring()
-				else
-					return "Object@" .. tostring(class)
+	if not abstract then
+		function class.new(...)
+			local meta = {
+				_base = super,
+				_class = class,
+				__index = class,
+				_instance = true,
+				__tostring = function(self)
+					if type(self.tostring) == "function" then
+						return self:tostring()
+					else
+						return "Object@" .. tostring(class)
+					end
 				end
+			}
+
+			local obj = setmetatable({}, meta)
+
+			if type(class.constructor) == "function" then
+				class.constructor(obj, ...)
 			end
-		}
 
-		local obj = setmetatable({}, meta)
-
-		if type(class.constructor) == "function" then
-			class.constructor(obj, ...)
+			return obj
 		end
-
-		return obj
+	else
+		function class.new()
+			error("Cannot create abstract type '" .. tostring(name) .. "'", 2)
+		end
 	end
 
 	registry[name] = class

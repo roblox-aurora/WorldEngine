@@ -4,7 +4,7 @@
 	"partitions": {
 		"shared": {
 			"path": "lib/shared",
-			"target": "ReplicatedStorage.Libraries"
+			"target": "ReplicatedStorage.WorldEngine"
 		},
 		"server": {
 			"path": "lib/server",

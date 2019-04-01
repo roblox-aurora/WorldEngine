@@ -3,7 +3,7 @@
 ]]
 -- If you add any dependencies, add them to this table so they'll be loaded!
 local LOAD_MODULES = {
-	{"lib/shared", "WorldEngineLib", "ReplicatedStorage"},
+	{"lib/shared", "WorldEngine", "ReplicatedStorage"},
 	{"lib/server", "WorldEngineServer"},
 	{"modules/testez/lib", "TestEZ"}
 }
@@ -39,7 +39,7 @@ end
 -- Load TestEZ and run our tests
 local TestEZ = habitat:require(Root.TestEZ)
 
-local results = TestEZ.TestBootstrap:run({replicated.WorldEngineLib, Root.WorldEngineServer}, TestEZ.Reporters.TextReporter)
+local results = TestEZ.TestBootstrap:run({replicated.WorldEngine, Root.WorldEngineServer}, TestEZ.Reporters.TextReporter)
 
 -- Did something go wrong?
 if results.failureCount > 0 then
