@@ -1,0 +1,9 @@
+return {
+	include = {
+		"^lib"
+	},
+	exclude = {
+		"%.spec$",
+		"^lib/shared/t$" -- ignore t, it's already tested @https://github.com/osyrisrblx/t
+	}
+}
