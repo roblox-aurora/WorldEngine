@@ -1,6 +1,13 @@
 return function()
 	local Object = require(script.Parent.Object)
 
+	local classId = 0
+	local function generateClass(parent)
+		local class = (parent or Object):Extend(("Class%.3X"):format(classId))
+		classId = classId + 1
+		return class
+	end
+
 	local TestClass = Object:Extend("TestClass")
 	function TestClass:constructor()
 	end
@@ -48,29 +55,113 @@ return function()
 				end
 			)
 
-			it("should pass arguments to base constructors through super", function()
-				local TestClass4 = Object:Extend("TestClass4")
-				function TestClass4:constructor(value)
-					self.a = value
+			it(
+				"should pass arguments to base constructors through super",
+				function()
+					local TestClass4 = Object:Extend("TestClass4")
+					function TestClass4:constructor(value)
+						self.a = value
+					end
+
+					local TestClass5 = TestClass4:Extend("TestClass5")
+					function TestClass5:constructor(a, b)
+						TestClass4:super(self, a)
+						self.b = b
+					end
+
+					local instance = TestClass5.new("Hello", "World")
+					expect(instance.a).to.equal("Hello")
+					expect(instance.b).to.equal("World")
 				end
+			)
 
-				local TestClass5 = TestClass4:Extend("TestClass5")
-				function TestClass5:constructor(a, b)
-					TestClass4:super(self, a)
-					self.b = b
+			it(
+				"should not allow creation of abstract objects",
+				function()
+					local TestClass6 = Object:Extend("AbstractClass", {abstract = true})
+					expect(
+						function()
+							TestClass6.new()
+						end
+					).to.throw()
 				end
+			)
 
-				local instance = TestClass5.new("Hello", "World")
-				expect(instance.a).to.equal("Hello")
-				expect(instance.b).to.equal("World")
-			end)
+			it(
+				"should not allow duplicate class names",
+				function()
+					Object:Extend("DuplicateClass")
+					expect(
+						function()
+							Object:Extend("DuplicateClass")
+						end
+					).to.throw()
+				end
+			)
 
-			it("should not allow creation of abstract objects", function()
-				local TestClass6 = Object:Extend("AbstractClass", {abstract = true})
-				expect(function()
-					TestClass6.new()
-				end).to.throw()
-			end)
+			it(
+				"should not allow extension of sealed classes",
+				function()
+					local SealedClass = Object:Extend("SealedClass", {sealed = true})
+					expect(
+						function()
+							SealedClass:Extend("SubSealedClass")
+						end
+					).to.throw()
+				end
+			)
+
+			describe(
+				"Methods",
+				function()
+					it(
+						"should not allow calling IsType on classes",
+						function()
+							expect(
+								function()
+									TestClass:IsType(TestClass)
+								end
+							).to.throw()
+						end
+					)
+
+					it(
+						"should return false on non-matching isType classNames",
+						function()
+							local instance = TestClass.new()
+							expect(instance:IsType("Nope")).to.equal(false)
+						end
+					)
+
+					it(
+						"should not allow calling Is on instances",
+						function()
+							expect(
+								function()
+									local instance = TestClass.new()
+									instance:Is("TestClass")
+								end
+							).to.throw()
+						end
+					)
+				end
+			)
+		end
+	)
+
+	describe(
+		"ObjectFactory",
+		function()
+			it(
+				"should not allow assigning a value to ObjectFactory",
+				function()
+					expect(
+						function()
+							Object.test = 10
+						end
+					).to.throw()
+				end
+			)
 		end
 	)
 
@@ -93,6 +184,25 @@ return function()
 					expect(TestEnum.TestValueB.Name).to.equal("TestValueB")
 				end
 			)
+		end
+	)
+
+	it(
+		"should be able to get classes with Get()",
+		function()
+			local get = Object:Get("TestClass")
+			expect(get).to.be.ok()
+		end
+	)
+
+	it(
+		"should error on invalid classes in Get()",
+		function()
+			expect(
+				function()
+					Object:Get("Invalid")
+				end
+			).to.throw()
 		end
 	)
 end

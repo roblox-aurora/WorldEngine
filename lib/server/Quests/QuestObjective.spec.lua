@@ -16,8 +16,8 @@ return function()
 			local objs = myQuest:GetObjectives()
 			local firstObj = objs[1]
 			expect(firstObj).to.be.ok()
-			expect(firstObj.Stage).to.equal(1)
-			expect(firstObj.Description).to.equal("Test Objective")
+			expect(firstObj:GetStage()).to.equal(1)
+			expect(firstObj:GetDescription()).to.equal("Test Objective")
 		end
 	)
 end

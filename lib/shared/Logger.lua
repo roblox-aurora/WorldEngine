@@ -52,9 +52,7 @@ end
 function Logger:_parseVariable(source, variable, value)
 	local _parseVariableArg = t.tuple(t.string, t.union(t.string, t.number), t.any)
 	assert(_parseVariableArg(source, variable, value))
-
-	source =
-		source:gsub(
+	local newSource = source:gsub(
 		"{(.-)}",
 		function(argl)
 			local formatter = argl:match("^" .. variable .. ":(.-)$")
@@ -80,8 +78,6 @@ function Logger:_parseVariable(source, variable, value)
 							num = math.floor(num + 0.5)
 						elseif (modifier == -1) then
 							num = math.ceil(num - 0.5)
-						else
-							error("Invalid modifier: " .. tostring(modifier))
 						end
 
 						return tostring(num)
@@ -110,7 +106,7 @@ function Logger:_parseVariable(source, variable, value)
 		end
 	)
 
-	return source
+	return newSource
 end
 
 local FORMAT_TYPES = t.tuple(t.string, t.array(t.any))
@@ -124,14 +120,17 @@ function Logger:Format(formatString, ...)
 			formatString = self:_parseVariable(formatString, zeroBased and index - 1 or index, arg)
 		end
 
-		formatString:gsub("{(.-)}", function(value)
-			error(
-				("Invalid formatter id %s: %s"):format(
-					(value:match("%d+") and "#" .. tostring(value) or "`" .. tostring(value) .. "`"),
-					formatString
+		formatString:gsub(
+			"{(.-)}",
+			function(value)
+				error(
+					("Invalid formatter id %s: %s"):format(
+						(value:match("%d+") and "#" .. tostring(value) or "`" .. tostring(value) .. "`"),
+						formatString
+					)
 				)
-			)
-		end);
+			end
+		)
 	end
 
 	return formatString
@@ -146,30 +145,32 @@ function Logger:FormatTable(formatString, tbl)
 			formatString = self:_parseVariable(formatString, index, arg)
 		end
 
-		formatString:gsub("{(.-)}", function(value)
-			error(
-				("Invalid formatter id %s: %s"):format(
-					(value:match("%d+") and "#" .. tostring(value) or "`" .. tostring(value) .. "`"),
-					formatString
+		formatString:gsub(
+			"{(.-)}",
+			function(value)
+				error(
+					("Invalid formatter id %s: %s"):format(
+						(value:match("%d+") and "#" .. tostring(value) or "`" .. tostring(value) .. "`"),
+						formatString
+					)
 				)
-			)
-		end);
+			end
+		)
 	end
 
 	return formatString
 end
 
+-- luacov: disable
 function Logger:Info(formatString, ...)
 	if self.verbosity.Value < 3 then
 		return
 	end
 
-	local args = {...}
-	if (#args > 0) then
-		print(self:_getPrefix(), self:Format(formatString, ...))
-	else
-		print(self:_getPrefix(), formatString)
-	end
+	local output = ("%s %s"):format(self:_getPrefix(), self:Format(formatString, ...))
+
+	print(output)
+	return output
 end
 
 function Logger:Warn(formatString, ...)
@@ -189,6 +190,7 @@ function Logger:Error(formatString, ...)
 	error(self:getPrefix() .. " " .. self:Format(formatString, ...), 2)
 end
 
+
 local RunService = game:GetService("RunService")
 local Default =
 	RunService:IsStudio() and
@@ -199,6 +201,8 @@ local Default =
 		}
 	) or
 	Logger.new()
+
+-- luacov: enable
 
 return setmetatable(
 	{

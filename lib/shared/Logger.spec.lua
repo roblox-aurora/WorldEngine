@@ -19,6 +19,16 @@ return function()
 			)
 
 			it(
+				"should handle the json formatter",
+				function()
+					local logger = Logger.new()
+					local helloWorld = logger:_parseVariable("{0:j}", 0, {hello = "world"})
+					expect(helloWorld).to.be.ok()
+					expect(helloWorld).to.equal('{"hello":"world"}')
+				end
+			)
+
+			it(
 				"should handle the quote formatter",
 				function()
 					local logger = Logger.new()
@@ -101,6 +111,19 @@ return function()
 					expect(helloWorld2).to.equal("2")
 				end
 			)
+
+			it(
+				"should error on invalid formatters",
+				function()
+					local logger = Logger.new()
+
+					expect(
+						function()
+							logger:_parseVariable("{0:kek}", 0, "hi")
+						end
+					).to.throw()
+				end
+			)
 		end
 	)
 
@@ -141,6 +164,12 @@ return function()
 							logger:Format("{0}", "hi there") -- idx zero doesn't exist, should be 1 or use zeroBasedIndexing!
 						end
 					).to.throw()
+
+					expect(
+						function()
+							logger:FormatTable("{0}", {value = "hi"})
+						end
+					).to.throw()
 				end
 			)
 		end
@@ -168,6 +197,53 @@ return function()
 					Logger.FailValue = 10
 				end
 			).to.throw()
+		end
+	)
+
+	describe(
+		"Prefixes",
+		function()
+			it(
+				"should work with full script names",
+				function()
+					local logger = Logger.new({prefix = Logger.Prefix.ScriptFullName, verbosity = Logger.Verbosity.Verbose})
+					expect(logger:Info("Test"):match("^%[(.-)%]")).to.equal("ReplicatedStorage.WorldEngine.Logger.spec")
+				end
+			)
+			it(
+				"should work with script names",
+				function()
+					local logger = Logger.new({prefix = Logger.Prefix.ScriptName, verbosity = Logger.Verbosity.Verbose})
+					expect(logger:Info("Test"):match("^%[(.-)%]")).to.equal("Logger.spec")
+				end
+			)
+			it(
+				"should work with custom prefixes",
+				function()
+					local logger = Logger.new({prefix = "MyLogger", verbosity = Logger.Verbosity.Verbose})
+					expect(logger:Info("Test"):match("^%[(.-)%]")).to.equal("MyLogger")
+				end
+			)
+			it(
+				"should work with no prefix",
+				function()
+					local logger = Logger.new({prefix = Logger.Prefix.None, verbosity = Logger.Verbosity.Verbose})
+					expect(logger:Info("Test"):match("^%[(.-)%]")).never.to.be.ok()
+				end
+			)
+		end
+	)
+
+	describe(
+		"Constructor",
+		function()
+			it(
+				"should allow disabling of the formatter",
+				function()
+					local logger = Logger.new({formatterEnabled = false})
+					expect(logger.formatterEnabled).to.equal(false)
+				end
+			)
 		end
 	)
 end

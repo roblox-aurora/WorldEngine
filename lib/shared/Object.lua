@@ -14,10 +14,6 @@ end
 
 --- Creates a sealed enum class
 function Object.Enum(_, name, values)
-	if (registry[name]) then
-		error("Duplicate class `" .. tostring(name) .. "`.", 2)
-	end
-
 	local enum = Object:Extend(name, {sealed = true})
 	function enum:constructor(_name, _value)
 		self.Name = _name
@@ -106,6 +102,7 @@ function Object:Extend(name, options)
 
 	-- Used to pass inheritance
 	function class.super(_class, obj, ...)
+		-- luacov: disable
 		if (type(obj) ~= "table") then
 			error("First argument of super must be an object!", 2)
 		end
@@ -113,6 +110,7 @@ function Object:Extend(name, options)
 		if (_class == getmetatable(obj).__index) then
 			error("Call 'super' on the base class rather than the same class!", 2)
 		end
+		-- luacov: enable
 
 		if type(_class.constructor) == "function" then
 			_class.constructor(obj, ...)
@@ -154,7 +152,7 @@ function Object:Extend(name, options)
 	return class
 end
 
--- interface for t
+-- luacov: disable
 function Object.typeIs(t)
 	if (type(t) == "table") then
 		return function(value)
@@ -176,5 +174,6 @@ function Object.typeIs(t)
 		end
 	end
 end
+-- luacov: enable
 
 return setmetatable({}, Object)
