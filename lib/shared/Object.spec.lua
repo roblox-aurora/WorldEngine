@@ -1,13 +1,6 @@
 return function()
 	local Object = require(script.Parent.Object)
 
-	local classId = 0
-	local function generateClass(parent)
-		local class = (parent or Object):Extend(("Class%.3X"):format(classId))
-		classId = classId + 1
-		return class
-	end
-
 	local TestClass = Object:Extend("TestClass")
 	function TestClass:constructor()
 	end
