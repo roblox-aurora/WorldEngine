@@ -2,6 +2,8 @@
 lua -lluacov spec.lua
 luacov
 
+luacheck lib
+
 printf "\e[4m"
 tail -1000 luacov.report.out | grep 'File'
 
@@ -11,3 +13,4 @@ tail -1000 luacov.report.out | egrep '/*.lua [0-9]{0}' | awk '0+$4 >= 100'
 
 printf "\e[91m"
 tail -1000 luacov.report.out | egrep '/*.lua [0-9]{0}' | awk '0+$4 < 100'
+
