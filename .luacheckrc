@@ -1,6 +1,6 @@
 stds.roblox = {
 	read_globals = {
-		"script", "spawn", "warn", "Instance", "game",
+		"script", "spawn", "warn", "Instance", "game", "CFrame", "Vector3"
 	},
 
 	globals = {
