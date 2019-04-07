@@ -16,7 +16,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local vars = {
-	engine = ServerScriptService:FindFirstChild("WorldEngine"),
+	engine = (RunService:IsServer() or __LEMUR__) and ServerScriptService:FindFirstChild("WorldEngine"),
 	lib = ReplicatedStorage:FindFirstChild("WorldEngine")
 }
 
@@ -43,7 +43,7 @@ local function path(array, opts)
 
 	for _, part in next, array do
 		if part == ".." then
-			target = getfenv(1).script.Parent
+			target = target.Parent
 		else
 			local instance = target:FindFirstChild(part)
 			if instance then
@@ -69,7 +69,7 @@ local function import(value, relativeTo, overrides)
 			pathRel,
 			{
 				homePath = overrides.homePath,
-				relativeTo = relativeTo or (RunService:IsServer() and "ServerScriptService" or "ReplicatedStorage")
+				relativeTo = relativeTo or getfenv(3).script
 			}
 		)
 		if result:IsA("ModuleScript") then
@@ -80,10 +80,7 @@ local function import(value, relativeTo, overrides)
 	end
 end
 
-local Import = {
-	Server = "ServerScriptService",
-	Shared = "ReplicatedStorage",
-	Client = nil,
+local testImport = {
 	Test = function(isServer)
 		if not __LEMUR__ then
 			error("`import.Test` can only be used by Lemur.", 2)
@@ -102,12 +99,8 @@ local Import = {
 		end
 	end
 }
-Import.__index = Import
--- luacov: disable
-Import.__call = function(_, ...)
-	return import(...)
-end
 
+-- luacov: disable
 -- variable discovery
 local extraVarsModule = ReplicatedStorage:FindFirstChild(".imports", true)
 if (extraVarsModule and extraVarsModule:IsA("ModuleScript")) then
@@ -118,6 +111,47 @@ if (extraVarsModule and extraVarsModule:IsA("ModuleScript")) then
 		vars[name] = value
 	end
 end
--- luacov: enable
 
-return setmetatable({}, Import)
+if __LEMUR__ then
+	return testImport
+else
+	local prototype = {}
+
+	function prototype.shared(relativePath)
+		return import(relativePath, ReplicatedStorage)
+	end
+
+	function prototype.library(relativePath)
+		return import(relativePath, ReplicatedStorage:WaitForChild("WorldEngine"))
+	end
+
+	function prototype.server(relativePath)
+		return import(relativePath, ServerScriptService)
+	end
+
+	function prototype.relative(...)
+		return import(...)
+	end
+
+	local function importNSVariable(self, name)
+		local value = vars[name]
+		if value then
+			return function(_, relativePath)
+				return import(relativePath, value)
+			end
+		else
+			error(tostring(name) .. " is not a valid member of import.prototype", 2)
+		end
+	end
+
+	return setmetatable(
+		prototype,
+		{
+			__call = function(_, ...)
+				return import(...)
+			end, -- alias: import.relative
+			__index = importNSVariable
+		}
+	)
+end
+-- luacov: enable
