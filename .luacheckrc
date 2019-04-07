@@ -7,13 +7,14 @@ stds.roblox = {
 		"game",
 		"CFrame",
 		"Vector3",
-		"__LEMUR__"
+		"__LEMUR__",
+		string = {
+			fields = {
+				"split"
+			}
+		},
 	},
-	string = {
-		fields = {
-			"split"
-		}
-	},
+
 	globals = {
 		"typeof"
 	}
