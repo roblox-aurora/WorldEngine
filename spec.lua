@@ -4,7 +4,7 @@
 -- If you add any dependencies, add them to this table so they'll be loaded!
 local LOAD_MODULES = {
 	{"lib/shared", "WorldEngine", "ReplicatedStorage"},
-	{"lib/server", "WorldEngineServer"},
+	{"lib/server", "WorldEngine", "ServerScriptService"},
 	{"modules/testez/lib", "TestEZ"}
 }
 
@@ -18,6 +18,7 @@ local lemur = require("modules.lemur")
 local habitat = lemur.Habitat.new()
 local game = habitat.game
 local replicated = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- We'll put all of our library code and dependencies here
 local Root = lemur.Instance.new("Folder")
@@ -39,7 +40,7 @@ end
 -- Load TestEZ and run our tests
 local TestEZ = habitat:require(Root.TestEZ)
 
-local results = TestEZ.TestBootstrap:run({replicated.WorldEngine, Root.WorldEngineServer}, TestEZ.Reporters.TextReporter)
+local results = TestEZ.TestBootstrap:run({replicated.WorldEngine, ServerScriptService.WorldEngine}, TestEZ.Reporters.TextReporter)
 
 -- Did something go wrong?
 if results.failureCount > 0 then
