@@ -31,10 +31,10 @@ return function()
 	it(
 		"should be able to import via variables",
 		function()
-			local _, path = import("@engine/Quests/Quest")
+			local _, path = import("@core/Quests/Quest")
 			expect(path).to.equal("ServerScriptService.WorldEngine.Quests.Quest")
 
-			local _, path2 = import("@lib/Object")
+			local _, path2 = import("@corelib/Object")
 			expect(path2).to.equal("ReplicatedStorage.WorldEngine.Object")
 		end
 	)
