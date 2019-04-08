@@ -17,9 +17,9 @@ local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local vars = {
-	storage = RunService:IsServer() and ServerStorage or ReplicatedStorage,
-	engine = (RunService:IsServer() or __LEMUR__) and ServerScriptService:FindFirstChild("WorldEngine"),
-	lib = ReplicatedStorage:FindFirstChild("WorldEngine")
+	["local"] = RunService:IsServer() and ServerStorage or ReplicatedStorage,
+	core = (RunService:IsServer() or __LEMUR__) and ServerScriptService:FindFirstChild("WorldEngine"),
+	corelib = ReplicatedStorage:FindFirstChild("WorldEngine")
 }
 
 local function path(array, opts)
@@ -109,7 +109,7 @@ local function import(value, relativeTo, overrides)
 
 	local isRelativeImport = value:match("^[%.]+/")
 	relativeTo =
-		relativeTo or (isRelativeImport and getfenv(3).script or vars.lib) or error("Invalid relativeTo in import")
+		relativeTo or (isRelativeImport and getfenv(3).script or vars.corelib) or error("Invalid relativeTo in import")
 
 	overrides = overrides or {}
 	if typeof(value) == "Instance" then
