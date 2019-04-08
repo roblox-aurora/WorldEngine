@@ -52,7 +52,7 @@ local function path(array, opts)
 		if part == ".." then
 			target = target.Parent
 		else
-			local instance = target:FindFirstChild(part)
+			local instance = target:FindFirstChild(part, opts.findRelative)
 			if instance then
 				target = instance
 			else
@@ -105,7 +105,7 @@ local function import(value, relativeTo, overrides)
 	end
 
 	local isRelativeImport = value:match("^[%.]+/")
-	relativeTo = relativeTo or (isRelativeImport and getfenv(3).script or ReplicatedStorage:FindFirstChild("WorldEngine"))
+	relativeTo = relativeTo or (isRelativeImport and getfenv(3).script or vars.lib) or error("Invalid relativeTo in import")
 
 	overrides = overrides or {}
 	if typeof(value) == "Instance" then
@@ -118,7 +118,8 @@ local function import(value, relativeTo, overrides)
 			pathRel,
 			{
 				homePath = overrides.homePath,
-				relativeTo = relativeTo
+				relativeTo = relativeTo,
+				findRelative = not isRelativeImport
 			}
 		)
 		if result:IsA("ModuleScript") then
