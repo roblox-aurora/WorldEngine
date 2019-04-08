@@ -37,6 +37,8 @@ local function path(array, opts)
 	elseif (first == "") then -- root
 		relativeTo = game
 		table.remove(array, 1)
+	elseif (first == ".") then -- remove script relativity.
+		table.remove(array, 1)
 	end
 
 	local target
