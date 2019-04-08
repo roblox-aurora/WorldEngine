@@ -63,6 +63,8 @@ local function path(array, opts)
 end
 
 local function import(value, relativeTo, overrides)
+	local isRelativeImport = value:match("^[%.]+/")
+
 	overrides = overrides or {}
 	if typeof(value) == "Instance" then
 		return require(value)
@@ -74,7 +76,8 @@ local function import(value, relativeTo, overrides)
 			pathRel,
 			{
 				homePath = overrides.homePath,
-				relativeTo = relativeTo or getfenv(3).script
+				relativeTo = relativeTo or
+					(isRelativeImport and getfenv(3).script or ReplicatedStorage:FindFirstChild("WorldEngine"))
 			}
 		)
 		if result:IsA("ModuleScript") then
@@ -134,8 +137,8 @@ else
 		return import(relativePath, ServerScriptService)
 	end
 
-	function prototype.relative(...)
-		return import(...)
+	function prototype.relative(relativePath)
+		return import(relativePath, getfenv(2).script)
 	end
 
 	local function importNSVariable(self, name)
