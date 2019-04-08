@@ -41,6 +41,7 @@ function Object:Extend(name, options)
 	options = options or {}
 	local sealed = options.sealed or false
 	local abstract = options.abstract or false
+	local mutators = options.mutators or false
 
 	if (registry[name]) then
 		error("Duplicate class `" .. tostring(name) .. "`.", 2)
@@ -120,9 +121,11 @@ function Object:Extend(name, options)
 	-- Handler for X.new(...) - Calls X.constructor(...) internally
 	if not abstract then
 		function class.new(...)
+			local allowNewProperties = true
 			local meta = {
 				_base = super,
 				_class = class,
+				-- __newindex = ,
 				__index = class,
 				_instance = true,
 				__tostring = function(self)
@@ -134,11 +137,42 @@ function Object:Extend(name, options)
 				end
 			}
 
+			-- experimental mutators
+			if mutators then
+				meta.__newindex = function(self, index, value)
+					local setterGlobal = rawget(class, "set")
+					local setterFn = rawget(class, "Set" .. tostring(index))
+					if allowNewProperties then
+						rawset(self, index, value)
+					elseif setterGlobal then
+						setterGlobal(self, index, value)
+					elseif setterFn then
+						setterFn(self, value)
+					else
+						error("Cannot assign new property outside of constructor: " .. tostring(index), 2)
+					end
+				end
+				meta.__index = function(self, index)
+					local indexFunction = rawget(class, "get")
+					local indexFunction2 = rawget(class, "Get" .. tostring(index))
+					local child = type(indexFunction) == "function" and indexFunction(self, index) or rawget(self, index)
+					if child then
+						return child
+					elseif type(indexFunction2) == "function" then
+						return indexFunction2(self)
+					else
+						return class[index]
+					end
+				end
+			end
+
 			local obj = setmetatable({}, meta)
 
 			if type(class.constructor) == "function" then
 				class.constructor(obj, ...)
 			end
+
+			allowNewProperties = false
 
 			return obj
 		end
