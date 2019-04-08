@@ -4,6 +4,7 @@ return {
 	},
 	exclude = {
 		"%.spec$",
-		"^lib/shared/t$" -- ignore t, it's already tested @https://github.com/osyrisrblx/t
+		"^lib/shared/t$", -- ignore t, it's already tested @https://github.com/osyrisrblx/t
+		"^lib/shared/Promise$" -- ignore Promise, already tested
 	}
 }
