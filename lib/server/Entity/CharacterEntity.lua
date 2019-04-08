@@ -1,8 +1,10 @@
-local WorldEngine = game:GetService("ReplicatedStorage"):WaitForChild("WorldEngine")
-local t = require(WorldEngine:WaitForChild("t"))
+local import = require(game:GetService("ReplicatedStorage"):WaitForChild("WorldEngine"):WaitForChild("Import"))
 
-local Entity = require(script.Parent.Entity)
-local CharacterEntityConstructorArgs = t.tuple(t.optional(t.number))
+local t = import "t"
+local Entity = import "../Entity"
+
+local unsignedFloat = t.intersection(t.number, t.numberMin(0))
+local CharacterEntityConstructorArgs = t.tuple(t.optional(unsignedFloat))
 
 local CharacterEntity = Entity:Extend("CharacterEntity", {abstract = true})
 function CharacterEntity:constructor(health)
@@ -18,8 +20,28 @@ function CharacterEntity:GetHealth()
 end
 
 function CharacterEntity:SetHealth(health)
-	assert(t.number(health))
+	assert(unsignedFloat(health))
 	self._health = health
+end
+
+function CharacterEntity:TakeDamage(amount)
+	assert(unsignedFloat(amount))
+
+	if amount > self._health then
+		self._health = 0
+	else
+		self._health = self._health - amount
+	end
+end
+
+function CharacterEntity:Heal(amount)
+	assert(unsignedFloat(amount))
+
+	if self._health + amount > self._maxHealth then
+		self._health = self._maxHealth
+	else
+		self._health = self._health + amount
+	end
 end
 
 function CharacterEntity:IsAlive()

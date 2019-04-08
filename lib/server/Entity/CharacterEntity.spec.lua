@@ -30,4 +30,22 @@ return function()
 			expect(test:GetHealth()).to.equal(1000)
 		end
 	)
+
+	it(
+		"should be able to heal and take damage",
+		function()
+			local test = TestPlayerEntity.new()
+			test:TakeDamage(50)
+			expect(test:GetHealth()).to.equal(150)
+
+			test:Heal(20)
+			expect(test:GetHealth()).to.equal(170)
+
+			test:Heal(100)
+			expect(test:GetHealth()).to.equal(200)
+
+			test:TakeDamage(2 ^ 31 - 1)
+			expect(test:GetHealth()).to.equal(0)
+		end
+	)
 end
