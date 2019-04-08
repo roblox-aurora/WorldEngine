@@ -175,6 +175,8 @@ return function()
 
 					expect(TestEnum.TestValueA.Name).to.equal("TestValueA")
 					expect(TestEnum.TestValueB.Name).to.equal("TestValueB")
+
+					expect(tostring(TestEnum.TestValueA)).to.equal("Enum[TestEnum@TestValueA]")
 				end
 			)
 		end

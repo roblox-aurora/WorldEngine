@@ -5,6 +5,14 @@ return function()
 	import = import.lemur()
 
 	it(
+		"should handle explicit relativeTo args",
+		function()
+			local _, test = import("WorldEngine/Object", "ReplicatedStorage")
+			expect(test).to.equal("ReplicatedStorage.WorldEngine.Object")
+		end
+	)
+
+	it(
 		"should be able to import from ReplicatedStorage",
 		function()
 			local result = import("~/WorldEngine/Import")
@@ -55,12 +63,29 @@ return function()
 			).to.throw()
 		end
 	)
-	it(
-		"should handle multiple imports",
+
+	describe(
+		"Multi Imports",
 		function()
-			local Logger, Object = import_relative {"Logger", "Object"} :from "~/WorldEngine"
-			expect(Logger).to.equal(require(script.Parent.Logger))
-			expect(Object).to.equal(require(script.Parent.Object))
+			it(
+				"should handle multiple imports",
+				function()
+					local Logger, Object = import_relative {"Logger", "Object"}:from "~/WorldEngine"
+					expect(Logger).to.equal(require(script.Parent.Logger))
+					expect(Object).to.equal(require(script.Parent.Object))
+				end
+			)
+
+			it(
+				"should error on invalid import names",
+				function()
+					expect(
+						function()
+							import_relative {"."}:from "~/WorldEngine"
+						end
+					).to.throw()
+				end
+			)
 		end
 	)
 end

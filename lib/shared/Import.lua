@@ -30,9 +30,9 @@ local function path(array, opts)
 	if (first and first:match("%@(.-)")) then
 		relativeTo = assert(vars[first:sub(2)], "Invalid variable: " .. first)
 		table.remove(array, 1)
-	elseif vars[first] then
-		relativeTo = vars[first]
-		table.remove(array, 1)
+	-- elseif vars[first] then
+	-- 	relativeTo = vars[first]
+	-- 	table.remove(array, 1)
 	elseif (first == "~") then
 		local isClient = not RunService:IsServer()
 		relativeTo = homePath or (isClient and game:GetService("ReplicatedStorage") or game:GetService("ServerScriptService"))
@@ -81,14 +81,10 @@ function MultiImport:from(relativePath)
 
 	for _, item in next, self.imports do
 		local target = path(split(item, "/"), {relativeTo = parent})
-		if target then
-			if target:IsA("ModuleScript") then
-				table.insert(imports, require(target))
-			else
-				error(("[import] Invalid import: %s (%s)"):format(item, target.ClassName), 3)
-			end
+		if target:IsA("ModuleScript") then
+			table.insert(imports, require(target))
 		else
-			error(("[import] Invalid import: %s"):format(item), 3)
+			error(("[import] Invalid import: %s (%s)"):format(item, target.ClassName), 3)
 		end
 	end
 
@@ -108,8 +104,11 @@ local function import(value, relativeTo, overrides)
 	end
 
 	local isRelativeImport = value:match("^[%.]+/")
-	relativeTo =
-		relativeTo or (isRelativeImport and getfenv(3).script or vars.corelib) or error("Invalid relativeTo in import")
+	relativeTo = relativeTo or (isRelativeImport and getfenv(3).script or vars.corelib)
+	if not relativeTo then
+		-- luacov: ignore
+		error("Invalid relativeTo in import")
+	end
 
 	overrides = overrides or {}
 	if typeof(value) == "Instance" then
