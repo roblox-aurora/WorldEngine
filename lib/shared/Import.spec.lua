@@ -1,6 +1,9 @@
-local import = require(script.Parent.Import).Test()
-local import_server = require(script.Parent.Import).Test(true)
+local import = require(script.Parent.Import)
 return function()
+	local import_relative = import.relative
+	local import_server = import.lemur(true)
+	import = import.lemur()
+
 	it(
 		"should be able to import from ReplicatedStorage",
 		function()
@@ -9,6 +12,13 @@ return function()
 
 			local _, result2 = import_server("~/WorldEngine/Quests/Quest")
 			expect(result2).to.equal("ServerScriptService.WorldEngine.Quests.Quest")
+		end
+	)
+	it(
+		"should import libraries by default",
+		function()
+			local result = import "Logger"
+			expect(result).to.equal(script.Parent.Logger)
 		end
 	)
 	it(
@@ -33,6 +43,16 @@ return function()
 		function()
 			local _, test = import("/ServerScriptService/WorldEngine/Quests/Quest")
 			expect(test).to.equal("ServerScriptService.WorldEngine.Quests.Quest")
+		end
+	)
+	it(
+		"should handle prototype.relative",
+		function()
+			expect(
+				function()
+					import_relative("Logger") -- should error because Logger isn't a member of script
+				end
+			).to.throw()
 		end
 	)
 end

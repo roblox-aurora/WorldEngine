@@ -87,9 +87,22 @@ local function import(value, relativeTo, overrides)
 		end
 	end
 end
+-- luacov: disable
+-- variable discovery
+local extraVarsModule = ReplicatedStorage:FindFirstChild(".imports", true)
+if (extraVarsModule and extraVarsModule:IsA("ModuleScript")) then
+	local extraVars = require(extraVarsModule)
+	assert(typeof(extraVars) == "table")
+	for name, value in next, extraVars do
+		assert(typeof(value) == "Instance")
+		vars[name] = value
+	end
+end
 
-local testImport = {
-	Test = function(isServer)
+local prototype = {}
+
+if (__LEMUR__) then
+	function prototype.lemur(isServer)
 		if not __LEMUR__ then
 			error("`import.Test` can only be used by Lemur.", 2)
 		end
@@ -106,60 +119,42 @@ local testImport = {
 			end
 		end
 	end
-}
-
--- luacov: disable
--- variable discovery
-local extraVarsModule = ReplicatedStorage:FindFirstChild(".imports", true)
-if (extraVarsModule and extraVarsModule:IsA("ModuleScript")) then
-	local extraVars = require(extraVarsModule)
-	assert(typeof(extraVars) == "table")
-	for name, value in next, extraVars do
-		assert(typeof(value) == "Instance")
-		vars[name] = value
-	end
 end
 
-if __LEMUR__ then
-	return testImport
-else
-	local prototype = {}
+function prototype.shared(relativePath)
+	return import(relativePath, ReplicatedStorage)
+end
 
-	function prototype.shared(relativePath)
-		return import(relativePath, ReplicatedStorage)
-	end
+function prototype.library(relativePath)
+	return import(relativePath, ReplicatedStorage:WaitForChild("WorldEngine"))
+end
 
-	function prototype.library(relativePath)
-		return import(relativePath, ReplicatedStorage:WaitForChild("WorldEngine"))
-	end
+function prototype.server(relativePath)
+	return import(relativePath, ServerScriptService)
+end
 
-	function prototype.server(relativePath)
-		return import(relativePath, ServerScriptService)
-	end
+function prototype.relative(relativePath)
+	return import(relativePath, getfenv(2).script)
+end
 
-	function prototype.relative(relativePath)
-		return import(relativePath, getfenv(2).script)
-	end
-
-	local function importNSVariable(self, name)
-		local value = vars[name]
-		if value then
-			return function(_, relativePath)
-				return import(relativePath, value)
-			end
-		else
-			error(tostring(name) .. " is not a valid member of import.prototype", 2)
+local function importNSVariable(self, name)
+	local value = vars[name]
+	if value then
+		return function(_, relativePath)
+			return import(relativePath, value)
 		end
+	else
+		error(tostring(name) .. " is not a valid member of import.prototype", 2)
 	end
-
-	return setmetatable(
-		prototype,
-		{
-			__call = function(_, ...)
-				return import(...)
-			end, -- alias: import.relative
-			__index = importNSVariable
-		}
-	)
 end
+
+return setmetatable(
+	prototype,
+	{
+		__call = function(_, ...)
+			return import(...)
+		end, -- alias: import.relative
+		__index = importNSVariable
+	}
+)
 -- luacov: enable
