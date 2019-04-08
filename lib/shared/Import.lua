@@ -13,9 +13,11 @@ local split = string.split or function(self, delimiter)
 
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local vars = {
+	storage = RunService:IsServer() and ServerStorage or ReplicatedStorage,
 	engine = (RunService:IsServer() or __LEMUR__) and ServerScriptService:FindFirstChild("WorldEngine"),
 	lib = ReplicatedStorage:FindFirstChild("WorldEngine")
 }
@@ -31,6 +33,9 @@ local function path(array, opts)
 	elseif (first == "~") then
 		local isClient = not RunService:IsServer()
 		relativeTo = homePath or (isClient and game:GetService("ReplicatedStorage") or game:GetService("ServerScriptService"))
+		table.remove(array, 1)
+	elseif (first == "") then -- root
+		relativeTo = game
 		table.remove(array, 1)
 	end
 
