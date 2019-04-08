@@ -62,8 +62,48 @@ local function path(array, opts)
 	return target
 end
 
+local MultiImport = {}
+MultiImport.__index = MultiImport
+function MultiImport:from(relativePath)
+	local imports = {}
+	local parent =
+		path(
+		split(relativePath, "/"),
+		{
+			relativeTo = self.relativeTo
+		}
+	)
+
+	for _, item in next, self.imports do
+		local target = path(split(item, "/"), {relativeTo = parent})
+		if target then
+			if target:IsA("ModuleScript") then
+				table.insert(imports, require(target))
+			else
+				error(("[import] Invalid import: %s (%s)"):format(item, target.ClassName), 3)
+			end
+		else
+			error(("[import] Invalid import: %s"):format(item), 3)
+		end
+	end
+
+	return unpack(imports)
+end
+
 local function import(value, relativeTo, overrides)
+	if type(value) == "table" then -- Handle multi-import
+		return setmetatable(
+			{
+				imports = value,
+				relativeTo = relativeTo,
+				overrides = overrides
+			},
+			MultiImport
+		)
+	end
+
 	local isRelativeImport = value:match("^[%.]+/")
+	relativeTo = relativeTo or (isRelativeImport and getfenv(3).script or ReplicatedStorage:FindFirstChild("WorldEngine"))
 
 	overrides = overrides or {}
 	if typeof(value) == "Instance" then
@@ -76,8 +116,7 @@ local function import(value, relativeTo, overrides)
 			pathRel,
 			{
 				homePath = overrides.homePath,
-				relativeTo = relativeTo or
-					(isRelativeImport and getfenv(3).script or ReplicatedStorage:FindFirstChild("WorldEngine"))
+				relativeTo = relativeTo
 			}
 		)
 		if result:IsA("ModuleScript") then

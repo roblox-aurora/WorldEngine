@@ -55,4 +55,12 @@ return function()
 			).to.throw()
 		end
 	)
+	it(
+		"should handle multiple imports",
+		function()
+			local Logger, Object = import_relative {"Logger", "Object"} :from "~/WorldEngine"
+			expect(Logger).to.equal(require(script.Parent.Logger))
+			expect(Object).to.equal(require(script.Parent.Object))
+		end
+	)
 end
