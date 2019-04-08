@@ -27,8 +27,11 @@ local function path(array, opts)
 	local homePath = opts.homePath
 
 	local first = array[1]
-	if (first and first:match("%$(.-)")) then
+	if (first and first:match("%@(.-)")) then
 		relativeTo = assert(vars[first:sub(2)], "Invalid variable: " .. first)
+		table.remove(array, 1)
+	elseif vars[first] then
+		relativeTo = vars[first]
 		table.remove(array, 1)
 	elseif (first == "~") then
 		local isClient = not RunService:IsServer()
@@ -105,7 +108,8 @@ local function import(value, relativeTo, overrides)
 	end
 
 	local isRelativeImport = value:match("^[%.]+/")
-	relativeTo = relativeTo or (isRelativeImport and getfenv(3).script or vars.lib) or error("Invalid relativeTo in import")
+	relativeTo =
+		relativeTo or (isRelativeImport and getfenv(3).script or vars.lib) or error("Invalid relativeTo in import")
 
 	overrides = overrides or {}
 	if typeof(value) == "Instance" then
