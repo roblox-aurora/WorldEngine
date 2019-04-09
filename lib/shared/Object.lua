@@ -12,6 +12,22 @@ function Object.Get(_, name)
 	return (assert(registry[name], tostring(name) .. " is not in the registry!"))
 end
 
+local function symbol(name)
+	local self = newproxy(true)
+	local wrappedName = ("Symbol(%s)"):format(name)
+	getmetatable(self).__tostring = function()
+		return wrappedName
+	end
+
+	return self
+end
+
+local ID_CLASS = symbol("Class")
+local ID_INHERITANCE = symbol("Inheritance")
+local ID_INSTANCE = symbol("Instance")
+local ID_PARENT_CLASS = symbol("ParentClass")
+local ID_CLASS_NAME = symbol("ClassName")
+
 --- Creates a sealed enum class
 function Object.Enum(_, name, values)
 	local enum = Object:Extend(name, {sealed = true})
@@ -36,9 +52,9 @@ end
 -- Used to check, like Rbx:IsA
 local function class_IsType(object, className)
 	local meta = getmetatable(object)
-	if (meta._instance) then
-		for _, baseClass in next, meta._class._inheritance do
-			if (baseClass._className == className) then
+	if (meta[ID_INSTANCE]) then
+		for _, baseClass in next, meta[ID_CLASS][ID_INHERITANCE] do
+			if (baseClass[ID_CLASS_NAME] == className) then
 				return true
 			end
 		end
@@ -53,12 +69,12 @@ local function class_Is(self, value)
 	local selfmeta = getmetatable(self)
 	local meta = type(value) == "table" and getmetatable(value)
 
-	if not selfmeta or selfmeta._instance then
+	if not selfmeta or selfmeta[ID_INSTANCE] then
 		error("`Is` must be called on a class!", 2)
 	end
 
-	if meta and meta._instance then
-		return value:IsType(self._className)
+	if meta and meta[ID_INSTANCE] then
+		return value:IsType(self[ID_CLASS_NAME])
 	else
 		return false
 	end
@@ -108,9 +124,10 @@ function Object:Extend(name, options)
 
 	local class = {}
 	class.__index = class
-	class._className = name
-	class._parentclass = super
-	class._inheritance = {class, unpack(self._inheritance or {})}
+	class[ID_CLASS_NAME] = name
+	class.ClassName = name
+	class[ID_PARENT_CLASS] = super
+	class[ID_INHERITANCE] = {class, unpack(self[ID_INHERITANCE] or {})}
 
 	if (sealed) then
 		class._sealed = true
@@ -127,11 +144,11 @@ function Object:Extend(name, options)
 		function class.new(...)
 			local allowNewProperties = true
 			local meta = {
-				_base = super,
-				_class = class,
+				[ID_PARENT_CLASS] = super,
+				[ID_CLASS] = class,
 				-- __newindex = ,
 				__index = class,
-				_instance = true,
+				[ID_INSTANCE] = true,
 				__tostring = function(self)
 					if type(self.tostring) == "function" then
 						return self:tostring()
@@ -196,16 +213,16 @@ function Object.typeIs(t)
 		return function(value)
 			local meta = getmetatable(value)
 			if not meta then
-				return false, "expected `" .. t._className .. "` got  `" .. typeof(value) .. "`"
+					return false, "expected `" .. t[ID_CLASS_NAME] .. "` got  `" .. typeof(value) .. "`"
 			end
 
-			return t:Is(value), "expected `" .. t._className .. "` got  `" .. meta._class._className .. "`"
+			return t:Is(value), "expected `" .. t[ID_CLASS_NAME] .. "` got  `" .. meta[ID_CLASS][ID_CLASS_NAME] .. "`"
 		end
 	else
 		return function(value)
 			local meta = getmetatable(value)
-			if (meta and meta._instance) then
-				return value:IsType(t), "expected `" .. t .. "` got `" .. meta._className .. "`"
+			if (meta and meta[ID_INSTANCE]) then
+				return value:IsType(t), "expected `" .. t .. "` got `" .. meta[ID_CLASS_NAME] .. "`"
 			end
 
 			return false, "expected `" .. t .. "` got `" .. typeof(value) .. "`"
