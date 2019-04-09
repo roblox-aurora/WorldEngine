@@ -2,5 +2,27 @@ site_name: WorldEngine
 repo_name: GitHub
 repo_url: https://github.com/roblox-aurora/WorldEngine
 nav:
-  - Home: index.md
-theme: readthedocs
+    - Home: index.md
+    - Core:
+          - Classes: core/object.md
+    - Entity: entity/index.md
+theme:
+    # feature:
+    #  tabs: true
+    name: material
+    palette:
+        primary: green
+        accent: teal
+    logo:
+        icon: public
+markdown_extensions:
+    - admonition
+    - pymdownx.details:
+    - pymdownx.inlinehilite:
+    - pymdownx.tasklist:
+    - pymdownx.superfences:
+        preserve_tabs: true
+    - codehilite:
+          guess_lang: false
+    - toc:
+          permalink: true

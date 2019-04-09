@@ -1,2 +1,3 @@
 luacov.*.out
 .vscode
+site/*
