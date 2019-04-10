@@ -27,6 +27,7 @@ local ID_INHERITANCE = symbol("Inheritance")
 local ID_INSTANCE = symbol("Instance")
 local ID_PARENT_CLASS = symbol("ParentClass")
 local ID_CLASS_NAME = symbol("ClassName")
+local ID_SEALED = symbol("SealedModifier")
 
 --- Creates a sealed enum class
 function Object.Enum(_, name, values)
@@ -111,14 +112,14 @@ function Object:Extend(name, options)
 		error("Duplicate class `" .. tostring(name) .. "`.", 2)
 	end
 
-	if (self._sealed) then
+	if (self[ID_SEALED]) then
 		error("Cannot extend sealed class!", 2)
 	end
 
 	local super = {
 		__index = self,
 		__tostring = function(self)
-			return name
+			return "class " .. name
 		end
 	}
 
@@ -130,7 +131,7 @@ function Object:Extend(name, options)
 	class[ID_INHERITANCE] = {class, unpack(self[ID_INHERITANCE] or {})}
 
 	if (sealed) then
-		class._sealed = true
+		class[ID_SEALED] = true
 	end
 
 	setmetatable(class, super)
