@@ -19,6 +19,18 @@ return function()
 			)
 
 			it(
+				"should not allow creating an object from another object",
+				function()
+					expect(
+						function()
+							local instance = TestClass.new()
+							instance.new()
+						end
+					).to.throw()
+				end
+			)
+
+			it(
 				"should be able to handle object inheritance",
 				function()
 					local TestClass2 = TestClass:Extend("TestClass2")

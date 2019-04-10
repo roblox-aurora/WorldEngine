@@ -98,6 +98,10 @@ local function class_super(_class, obj, ...)
 	end
 end
 
+local function throwOnNew()
+	error("Cannot call new on object instance", 2)
+end -- prevent creating object from another object
+
 --- Class:Extend(str) for class extending, default is Object:Extend( ) for base classes
 function Object:Extend(name, options)
 	assert(type(name) == "string")
@@ -189,6 +193,7 @@ function Object:Extend(name, options)
 			end
 
 			local obj = setmetatable({}, meta)
+			obj.new = throwOnNew
 
 			if type(class.constructor) == "function" then
 				class.constructor(obj, ...)
@@ -214,7 +219,7 @@ function Object.typeIs(t)
 		return function(value)
 			local meta = getmetatable(value)
 			if not meta then
-					return false, "expected `" .. t[ID_CLASS_NAME] .. "` got  `" .. typeof(value) .. "`"
+				return false, "expected `" .. t[ID_CLASS_NAME] .. "` got  `" .. typeof(value) .. "`"
 			end
 
 			return t:Is(value), "expected `" .. t[ID_CLASS_NAME] .. "` got  `" .. meta[ID_CLASS][ID_CLASS_NAME] .. "`"
