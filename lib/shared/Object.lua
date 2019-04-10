@@ -172,20 +172,20 @@ function Object:Extend(name, options)
 						rawset(self, index, value)
 					elseif setterGlobal then
 						setterGlobal(self, index, value)
-					elseif setterFn then
+					elseif type(setterFn) == "function" then
 						setterFn(self, value)
 					else
 						error("Cannot assign new property outside of constructor: " .. tostring(index), 2)
 					end
 				end
 				meta.__index = function(self, index)
-					local indexFunction = rawget(class, "get")
-					local indexFunction2 = rawget(class, "Get" .. tostring(index))
-					local child = type(indexFunction) == "function" and indexFunction(self, index) or rawget(self, index)
+					local getterGlobal = rawget(class, "get")
+					local getterFn = rawget(class, "Get" .. tostring(index))
+					local child = type(getterGlobal) == "function" and getterGlobal(self, index) or rawget(self, index)
 					if child then
 						return child
-					elseif type(indexFunction2) == "function" then
-						return indexFunction2(self)
+					elseif type(getterFn) == "function" then
+						return getterFn(self)
 					else
 						return class[index]
 					end
