@@ -116,6 +116,17 @@ return function()
 				end
 			)
 
+			it(
+				"should not allow an abstract sealed class",
+				function()
+					expect(
+						function()
+							Object:Extend("SealedAbstractClass", {sealed = true, abstract = true})
+						end
+					).to.throw()
+				end
+			)
+
 			describe(
 				"Methods",
 				function()

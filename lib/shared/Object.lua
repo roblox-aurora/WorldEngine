@@ -116,6 +116,10 @@ function Object:Extend(name, options)
 		error("Duplicate class `" .. tostring(name) .. "`.", 2)
 	end
 
+	if sealed and abstract then
+		error("A sealed class cannot also be abstract", 2)
+	end
+
 	if (self[ID_SEALED]) then
 		error("Cannot extend sealed class!", 2)
 	end
