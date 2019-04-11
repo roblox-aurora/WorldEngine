@@ -102,6 +102,10 @@ local function throwOnNew()
 	error("Cannot call new on object instance", 2)
 end -- prevent creating object from another object
 
+local function errorf(fmt, ...)
+	error((fmt):format(...), 3)
+end
+
 --- Class:Extend(str) for class extending, default is Object:Extend( ) for base classes
 function Object:Extend(name, options)
 	assert(type(name) == "string")
@@ -113,15 +117,15 @@ function Object:Extend(name, options)
 	local mutators = options.mutators or false
 
 	if (registry[name]) then
-		error("Duplicate class `" .. tostring(name) .. "`.", 2)
+		errorf("[Object] Duplicate class `%s`", name)
 	end
 
 	if sealed and abstract then
-		error("A sealed class cannot also be abstract", 2)
+		errorf("[Object] %s cannot be both sealed and abstract.", name)
 	end
 
 	if (self[ID_SEALED]) then
-		error("Cannot extend sealed class!", 2)
+		errorf("[Object] Cannot extend %s from sealed class %s - as it sealed.", name, self[ID_CLASS_NAME])
 	end
 
 	local super = {
@@ -209,7 +213,7 @@ function Object:Extend(name, options)
 		end
 	else
 		function class.new()
-			error("Cannot create abstract type '" .. tostring(name) .. "'", 2)
+			errorf("[%s.new] Cannot create type defined as abstract", name)
 		end
 	end
 
