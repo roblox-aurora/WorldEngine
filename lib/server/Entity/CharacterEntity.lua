@@ -3,7 +3,7 @@ local import = require(game:GetService("ReplicatedStorage"):WaitForChild("WorldE
 local t = import "t"
 local Entity = import "../Entity"
 
-local unsignedFloat = t.intersection(t.number, t.numberMin(0))
+local unsignedFloat = t.numberMin(0)
 local CharacterEntityConstructorArgs = t.tuple(t.optional(unsignedFloat))
 
 local CharacterEntity = Entity:Extend("CharacterEntity", {abstract = true})
