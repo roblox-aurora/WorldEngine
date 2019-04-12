@@ -152,6 +152,11 @@ function Object:Extend(name, options)
 	class.IsType = class_IsType
 	class.super = class_super
 
+	if mutators then
+		class.get = {}
+		class.set = {}
+	end
+
 	-- Handler for X.new(...) - Calls X.constructor(...) internally
 	if not abstract then
 		function class.new(...)
@@ -175,10 +180,10 @@ function Object:Extend(name, options)
 			if mutators then
 				meta.__newindex = function(self, index, value)
 					local setterGlobal = rawget(class, "set")
-					local setterFn = rawget(class, "Set" .. tostring(index))
+					local setterFn = type(setterGlobal) == "table" and rawget(setterGlobal, tostring(index))
 					if allowNewProperties then
 						rawset(self, index, value)
-					elseif setterGlobal then
+					elseif type(setterGlobal) == "function" then
 						setterGlobal(self, index, value)
 					elseif type(setterFn) == "function" then
 						setterFn(self, value)
@@ -188,7 +193,7 @@ function Object:Extend(name, options)
 				end
 				meta.__index = function(self, index)
 					local getterGlobal = rawget(class, "get")
-					local getterFn = rawget(class, "Get" .. tostring(index))
+					local getterFn = type(getterGlobal) == "table" and rawget(getterGlobal, tostring(index))
 					local child = type(getterGlobal) == "function" and getterGlobal(self, index) or rawget(self, index)
 					if child then
 						return child
