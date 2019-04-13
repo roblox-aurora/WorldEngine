@@ -80,7 +80,20 @@ return function()
 			expect(table.tostring({1, 2, 3, 4})).to.equal("{[1] = 1, [2] = 2, [3] = 3, [4] = 4}")
 			expect(table.tostring({a = 1, b = 2})).to.equal("{a = 1, b = 2}")
 			expect(table.tostring({1, 2, {3, 4}})).to.equal("{[1] = 1, [2] = 2, [3] = {[1] = 3, [2] = 4}}")
-			expect(table.tostring({a = 1, b = { c = 2 }})).to.equal("{a = 1, b = {c = 2}}")
+			expect(table.tostring({a = 1, b = {c = 2}})).to.equal("{a = 1, b = {c = 2}}")
+		end
+	)
+
+	it(
+		"should handle table.join",
+		function()
+			local join = table.join({a = 1, b = 2, 10}, {c = 3}, {d = 4}, {5})
+			expect(join.a).to.be.ok()
+			expect(join.b).to.be.ok()
+			expect(join.c).to.be.ok()
+			expect(join.d).to.be.ok()
+			expect(join[1]).to.equal(10)
+			expect(join[2]).to.equal(5)
 		end
 	)
 end

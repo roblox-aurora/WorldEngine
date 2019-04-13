@@ -113,4 +113,20 @@ function table.remove(t, query)
 	end
 end
 
+function table.join(...)
+	local tables = {...}
+	local newTable = {}
+	for _, t in next, tables do
+		assert(type(t) == "table")
+		for k, v in next, t do
+			if (type(k) == "string") then
+				newTable[k] = v
+			else
+				table.insert(newTable, v)
+			end
+		end
+	end
+	return newTable
+end
+
 return table
