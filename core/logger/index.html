@@ -31,18 +31,18 @@
       
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
-      <link rel="shortcut icon" href="assets/images/favicon.png">
+      <link rel="shortcut icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.1.1">
     
     
       
-        <title>WorldEngine</title>
+        <title>Logger - WorldEngine</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/application.3020aac5.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/application.3020aac5.css">
       
-        <link rel="stylesheet" href="assets/stylesheets/application-palette.224b79ff.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/application-palette.224b79ff.css">
       
       
         
@@ -51,7 +51,7 @@
       
     
     
-      <script src="assets/javascripts/modernizr.01ccdecf.js"></script>
+      <script src="../../assets/javascripts/modernizr.01ccdecf.js"></script>
     
     
       
@@ -60,7 +60,7 @@
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
-    <link rel="stylesheet" href="assets/fonts/material-icons.css">
+    <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
     
     
     
@@ -102,7 +102,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#world-engine" tabindex="1" class="md-skip">
+      <a href="#class-logger" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -111,7 +111,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="." title="WorldEngine" class="md-header-nav__button md-logo">
+        <a href="../.." title="WorldEngine" class="md-header-nav__button md-logo">
           
             <i class="md-icon">public</i>
           
@@ -127,7 +127,7 @@
               WorldEngine
             </span>
             <span class="md-header-nav__topic">
-              Home
+              Logger
             </span>
           
         </div>
@@ -201,7 +201,7 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href="." title="WorldEngine" class="md-nav__button md-logo">
+    <a href="../.." title="WorldEngine" class="md-nav__button md-logo">
       
         <i class="md-icon">public</i>
       
@@ -235,20 +235,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-    <a href="." title="Home" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
       Home
     </a>
-    
   </li>
 
     
@@ -256,10 +247,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
     
     <label class="md-nav__link" for="nav-2">
       Core
@@ -277,7 +270,7 @@
 
 
   <li class="md-nav__item">
-    <a href="core/object/" title="Classes" class="md-nav__link">
+    <a href="../object/" title="Classes" class="md-nav__link">
       Classes
     </a>
   </li>
@@ -287,11 +280,20 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="core/logger/" title="Logger" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+    <a href="./" title="Logger" class="md-nav__link md-nav__link--active">
       Logger
     </a>
+    
   </li>
 
         
@@ -306,7 +308,7 @@
 
 
   <li class="md-nav__item">
-    <a href="entity/" title="Entity" class="md-nav__link">
+    <a href="../../entity/" title="Entity" class="md-nav__link">
       Entity
     </a>
   </li>
@@ -339,13 +341,92 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/roblox-aurora/WorldEngine/edit/master/docs/index.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/roblox-aurora/WorldEngine/edit/master/docs/core/logger.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="world-engine">World Engine<a class="headerlink" href="#world-engine" title="Permanent link">&para;</a></h1>
+                <h1 id="class-logger">class Logger<a class="headerlink" href="#class-logger" title="Permanent link">&para;</a></h1>
+<details class="hint"><summary>Importing</summary><p>Using Require
+<div class="codehilite"><pre><span></span><span class="kd">local</span> <span class="n">Logger</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">ReplicatedStorage</span><span class="p">.</span><span class="n">WorldEngine</span><span class="p">.</span><span class="n">Logger</span><span class="p">)</span>
+</pre></div></p>
+<p>Using Import
+<div class="codehilite"><pre><span></span><span class="kd">local</span> <span class="n">Logger</span> <span class="o">=</span> <span class="n">import</span> <span class="s2">&quot;Logger&quot;</span>
+</pre></div></p>
+</details>
+<p>The logger class is a superior way of logging out debugging information as opposed to the regular <code>print</code>, <code>warn</code>, <code>assert</code> and <code>error</code>.</p>
+<h1 id="using-logger">Using Logger<a class="headerlink" href="#using-logger" title="Permanent link">&para;</a></h1>
+<p>There are two ways of using <code>Logger</code>.</p>
+<p>First is the global logger, calling methods on <code>Logger</code> itself... and creating a logger using <code>Logger.new()</code> and calling the methods off that.</p>
+<h2 id="methods-of-logger">Methods of Logger<a class="headerlink" href="#methods-of-logger" title="Permanent link">&para;</a></h2>
+<div class="admonition info">
+<p class="admonition-title">Logger:Info(message: string, ...): void</p>
+<p>Prints out an info message, similar to <code>print</code> but is formatted with debugging information set by the <code>Logger</code></p>
+<p>An example message from <code>Logger:Info</code> is <code>[ReplicatedStorage.MyModule] Hello, World!</code></p>
+<div class="superfences-tabs">
+<input name="__tabs_1" type="radio" id="__tab_1_0" checked="checked" />
+<label for="__tab_1_0">InfoExample.lua</label>
+<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="n">Logger</span><span class="p">:</span><span class="n">Info</span><span class="p">(</span><span class="s2">&quot;Hello, World!&quot;</span><span class="p">)</span>
+</pre></div></div>
+</div>
+<p>will print out
+<div class="codehilite"><pre><span></span>[Path.To.InfoExample] Hello, World!
+</pre></div></p>
+</div>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>WorldEngine is currently in development. Things are subject to change.</p>
+<p class="admonition-title">Logger:Warn(message: string, ...): void</p>
+<p>Prints out a warning message, similar to <code>warn</code> but is formatted with debugging information set by the <code>Logger</code></p>
+<div class="superfences-tabs">
+<input name="__tabs_2" type="radio" id="__tab_2_0" checked="checked" />
+<label for="__tab_2_0">InfoWarning.lua</label>
+<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="n">Logger</span><span class="p">:</span><span class="n">Warn</span><span class="p">(</span><span class="s2">&quot;Hello, Warning!&quot;</span><span class="p">)</span>
+</pre></div></div>
+</div>
+<p>will display the warning:
+<pre style="color: orange">
+[Path.To.InfoWarning] Hello, Warning!
+</pre></p>
+<p>Stack information will also be displayed if <code>warningsWithStackTrace</code> is set to true</p>
+</div>
+<div class="admonition error">
+<p class="admonition-title">Logger:Error(message: string, ...): never</p>
+<p>Displays an error, similar to <code>error</code> but is formatted with debugging information set by <code>Logger</code></p>
+<div class="superfences-tabs">
+<input name="__tabs_3" type="radio" id="__tab_3_0" checked="checked" />
+<label for="__tab_3_0">InfoError.lua</label>
+<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="n">Logger</span><span class="p">:</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;Hello, Error!&quot;</span><span class="p">)</span>
+</pre></div></div>
+</div>
+<p>will display the warning:</p>
+<p><pre style="color: red">
+[Path.To.InfoError] Hello, Error!
+</pre></p>
+</div>
+<div class="admonition bug">
+<p class="admonition-title">Logger:AssertTrue(condition?: boolean, message: string, ...): any</p>
+<p>Displays an error if the condition is falsy (<code>false</code>, <code>nil</code>), similar to <code>assert</code> but is formatted with debugging information set by the logger</p>
+<div class="superfences-tabs">
+<input name="__tabs_4" type="radio" id="__tab_4_0" checked="checked" />
+<label for="__tab_4_0">AssertExampleFalse.lua</label>
+<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="n">Logger</span><span class="p">:</span><span class="n">AssertTrue</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span> <span class="s2">&quot;Failed!&quot;</span><span class="p">)</span>
+</pre></div></div>
+</div>
+<p>Will print out</p>
+<div class="codehilite"><pre><span></span>[Path.To.AssertExampleFalse] Failed!
+</pre></div>
+
+</div>
+<div class="admonition abstract">
+<p class="admonition-title">Logger:Format(message: string, ...): string</p>
+<p>Will format a message with the logger's format. Used internally by the methods in <code>Logger</code>.</p>
+<div class="superfences-tabs">
+<input name="__tabs_5" type="radio" id="__tab_5_0" checked="checked" />
+<label for="__tab_5_0">FormatExample.lua</label>
+<div class="superfences-content"><div class="codehilite"><pre><span></span><span class="kd">local</span> <span class="n">result</span> <span class="o">=</span> <span class="n">Logger</span><span class="p">:</span><span class="n">Format</span><span class="p">(</span><span class="s2">&quot;Hello, {1}!&quot;</span><span class="p">,</span> <span class="s2">&quot;World&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div></div>
+</div>
+<p>output will be
+<div class="codehilite"><pre><span></span>[Path.To.FormatExample] Hello, World!
+</pre></div></p>
 </div>
                 
                   
@@ -367,14 +448,28 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
+          <a href="../object/" title="Classes" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Classes
+              </span>
+            </div>
+          </a>
         
-          <a href="core/object/" title="Classes" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+        
+          <a href="../../entity/" title="Entity" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Classes
+                Entity
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
@@ -402,9 +497,9 @@
       
     </div>
     
-      <script src="assets/javascripts/application.dc02f8ce.js"></script>
+      <script src="../../assets/javascripts/application.dc02f8ce.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"."}})</script>
+      <script>app.initialize({version:"1.0.4",url:{base:"../.."}})</script>
       
     
   </body>
