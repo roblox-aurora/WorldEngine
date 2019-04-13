@@ -6,7 +6,7 @@ local qt = require(script.Parent.validator)
 local registry = {}
 
 local questConstructorValidator = t.tuple(t.intersection(qt.id, qt.uniqueKey(registry)), t.string)
-local isQuestObjective = Object.typeIs(QuestObjective)
+local isQuestObjective = QuestObjective.instance
 
 local Quest = Object:Extend("Quest")
 function Quest:constructor(uniqueQuestId, name)

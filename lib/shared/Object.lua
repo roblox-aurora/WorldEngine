@@ -157,6 +157,25 @@ function Object:Extend(name, options)
 		class.set = {}
 	end
 
+	-- static instance(value: unknown): value is {ClassName}
+	function class.instance(value)
+		local err = "Expected %s got %s"
+		local meta = type(value) == "table" and getmetatable(value)
+
+		if meta then
+			local metaclass = meta[ID_CLASS]
+			if metaclass then
+				return value:IsType(name), err:format(name, metaclass[ID_CLASS_NAME])
+			elseif meta[ID_CLASS_NAME] then
+				return false, "Expected " .. name .. " got class " .. meta[ID_CLASS_NAME]
+			else
+				return false, "Expected " .. name .. " got " .. tostring(value)
+			end
+		else
+			return false, err:format(name, type(value))
+		end
+	end
+
 	-- Handler for X.new(...) - Calls X.constructor(...) internally
 	if not abstract then
 		function class.new(...)
@@ -228,6 +247,9 @@ end
 
 -- luacov: disable
 function Object.typeIs(t)
+	warn("[Object.typeIs] typeIs is deprecated, use Class.instance instead.")
+	print(debug.traceback())
+
 	if (type(t) == "table") then
 		return function(value)
 			local meta = getmetatable(value)

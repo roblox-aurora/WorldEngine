@@ -8,8 +8,8 @@ local LogPrefix = Object:Enum("LogPrefix", {"None", "Script", "ScriptFullName"})
 local loggerConstructorArgs =
 	t.interface(
 	{
-		prefix = t.optional(t.union(t.string, Object.typeIs(LogPrefix))),
-		verbosity = t.optional(Object.typeIs(LogVerbosity)),
+		prefix = t.optional(t.union(t.string, LogPrefix.instance)),
+		verbosity = t.optional(LogVerbosity.instance),
 		enableFormatting = t.optional(t.boolean),
 		zeroBasedIndexing = t.optional(t.boolean)
 	}

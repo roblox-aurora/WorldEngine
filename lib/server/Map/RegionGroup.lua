@@ -3,7 +3,7 @@ local Object = require(WorldEngine:WaitForChild("Object"))
 local Region = require(script.Parent.Region)
 local t = require(WorldEngine:WaitForChild("t"))
 
-local IS_REGION_GROUP = t.tuple(t.string, t.optional(t.array(Object.typeIs(Region))))
+local IS_REGION_GROUP = t.tuple(t.string, t.optional(t.array(Region.instance)))
 
 local RegionGroup = Object:Extend("RegionGroup")
 function RegionGroup:constructor(name, regions)
