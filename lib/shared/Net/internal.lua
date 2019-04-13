@@ -44,9 +44,14 @@ local function findOrCreateRemote(remoteType, name, throwIfNotExist)
 	end
 end
 
+local function findRemoteOrThrow(remoteType, name)
+	return findOrCreateRemote(remoteType, name, true)
+end
+
 eventFolder = findOrCreateFolder("Events")
 functionsFolder = findOrCreateFolder("Functions")
 
 return {
-	findOrCreateRemote = findOrCreateRemote
+	findOrCreateRemote = findOrCreateRemote,
+	findRemoteOrThrow = findRemoteOrThrow
 }

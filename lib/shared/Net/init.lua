@@ -1,21 +1,17 @@
 local RunService = game:GetService("RunService")
 local IS_CLIENT = RunService:IsClient()
 
--- local Dynamic = {}
--- Dynamic.__index = Dynamic
-
--- local function dynamic(modules)
--- 	return Promise.new(function(resolve, reject)
-
--- 	end)
--- end
-
+--[[
+	Very basic implementation of rbx-net
+]]
 if IS_CLIENT then
 	return {
-		ClientEvent = require(script.ClientEvent)
+		ClientEvent = require(script.ClientEvent),
+		ClientFunction = require(script.ClientFunction)
 	}
 else
 	return {
-		ServerEvent = require(script.ServerEvent)
+		ServerEvent = require(script.ServerEvent),
+		ServerFunction = require(script.ServerFunction)
 	}
 end

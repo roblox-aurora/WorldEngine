@@ -1,17 +1,21 @@
 local t = require(script.Parent.Parent:WaitForChild("t"))
-local findOrCreateRemote = require(script.internal).findOrCreateRemote
+local findRemoteOrThrow = require(script.internal).findRemoteOrThrow
 
 local ClientEvent = {}
 ClientEvent.__index = ClientEvent
 
 function ClientEvent.new(name)
-	local instance = findOrCreateRemote(name)
+	local instance = findRemoteOrThrow("RemoteEvent", name)
 
 	local self = {
 		_name = name,
 		_instance = instance
 	}
 	return setmetatable(self, ClientEvent)
+end
+
+function ClientEvent.is(value)
+	return type(value) == "table" and getmetatable(value) == ClientEvent, "Expected ClientEvent"
 end
 
 function ClientEvent:Connect(fn)

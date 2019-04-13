@@ -6,7 +6,7 @@ ServerEvent.__index = ServerEvent
 local tplayer = t.instanceIsA("Player");
 
 function ServerEvent.new(name)
-	local instance = findOrCreateRemote(name)
+	local instance = findOrCreateRemote("RemoteEvent", name)
 
 	local self = {
 		_name = name,
@@ -19,6 +19,10 @@ function ServerEvent:Connect(fn)
 	assert(t.callback(fn))
 
 	return self._instance.OnServerEvent:Connect(fn)
+end
+
+function ServerEvent.is(value)
+	return type(value) == "table" and getmetatable(value) == ServerEvent, "Expected ServerEvent"
 end
 
 function ServerEvent:SendToPlayer(player, ...)
