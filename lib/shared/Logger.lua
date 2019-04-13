@@ -11,7 +11,8 @@ local loggerConstructorArgs =
 		prefix = t.optional(t.union(t.string, LogPrefix.instance)),
 		verbosity = t.optional(LogVerbosity.instance),
 		enableFormatting = t.optional(t.boolean),
-		zeroBasedIndexing = t.optional(t.boolean)
+		zeroBasedIndexing = t.optional(t.boolean),
+		warningsWithStackTrace = t.optional(t.boolean)
 	}
 )
 
@@ -25,6 +26,7 @@ function Logger:constructor(options)
 	self.prefix = options.prefix or LogPrefix.Script
 	self.verbosity = options.verbosity or LogVerbosity.Warnings
 	self.zeroBasedIndexing = options.zeroBasedIndexing or false
+	self.warningsWithStackTrace = options.warningsWithStackTrace or false
 
 	local formatterEnabled
 	if (options.formatterEnabled ~= nil) then
@@ -174,15 +176,21 @@ function Logger:Info(formatString, ...)
 end
 
 function Logger:Warn(formatString, ...)
-	if self.verbosity.Value < 3 then
+	if self.verbosity.Value < 2 then
 		return
 	end
 
 	local args = {...}
 	if (#args > 0) then
 		warn(self:_getPrefix(), self:Format(formatString, ...))
+		if self.warningsWithStackTrace then
+			warn(debug.traceback(nil, 2))
+		end
 	else
 		warn(self:_getPrefix(), formatString)
+		if self.warningsWithStackTrace then
+			warn(debug.traceback(nil, 2))
+		end
 	end
 end
 
@@ -191,6 +199,14 @@ function Logger:AssertTrue(condition, formatString, ...)
 		error(self:getPrefix() .. " " .. self:Format(formatString, ...), 2)
 	else
 		return condition
+	end
+end
+
+function Logger:AssertNotNil(value, formatString, ...)
+	if value == nil then
+		error(self:getPrefix() .. " " .. self:Format(formatString, ...), 2)
+	else
+		return value
 	end
 end
 
@@ -205,7 +221,8 @@ local Default =
 	Logger.new(
 		{
 			prefix = LogPrefix.ScriptFullName,
-			verbosity = LogVerbosity.Verbose
+			verbosity = LogVerbosity.Verbose,
+			warningsWithStackTrace = true
 		}
 	) or
 	Logger.new()
