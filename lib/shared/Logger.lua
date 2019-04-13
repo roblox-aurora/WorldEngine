@@ -186,6 +186,14 @@ function Logger:Warn(formatString, ...)
 	end
 end
 
+function Logger:AssertTrue(condition, formatString, ...)
+	if not condition then
+		error(self:getPrefix() .. " " .. self:Format(formatString, ...), 2)
+	else
+		return condition
+	end
+end
+
 function Logger:Error(formatString, ...)
 	error(self:getPrefix() .. " " .. self:Format(formatString, ...), 2)
 end
