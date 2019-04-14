@@ -94,7 +94,7 @@ return function()
 			expect(table.tostring({1, 2, {3, 4}})).to.equal("{[1] = 1, [2] = 2, [3] = {[1] = 3, [2] = 4}}")
 			expect(table.tostring({a = 1, b = {c = 2}})).to.equal("{a = 1, b = {c = 2}}")
 
-			expect(table.tostring({symbol("Test")})).to.equal("{[1] = <userdata: Symbol(Test)>}")
+			expect(table.tostring({symbol("Test")})).to.equal("{[1] = <Symbol(Test)>}")
 			expect(
 				table.tostring(
 					{
@@ -102,7 +102,10 @@ return function()
 						end
 					}
 				)
-			).to.equal("{[1] = <function()>}")
+			).to.equal("{[1] = <function>}")
+
+			expect(table.tostring({Instance.new("Frame")})).to.equal("{[1] = <Frame>}")
+			expect(table.tostring({"Test"})).to.equal("{[1] = \"Test\"}")
 		end
 	)
 
