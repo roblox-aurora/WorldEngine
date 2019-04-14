@@ -77,6 +77,15 @@ return function()
 			)
 
 			it(
+				"should handle using the multi-importer to import Lua relative paths",
+				function()
+					-- EQUIVALENT OF: local library = import("~/WorldEngine/Import").library
+					local library = import_relative{ "library" } :from "~/WorldEngine/Import"
+					expect(library("Object")).to.equal(require(script.Parent.Object))
+				end
+			)
+
+			it(
 				"should error on invalid import names",
 				function()
 					expect(

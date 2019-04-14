@@ -22,17 +22,36 @@ local vars = {
 	corelib = ReplicatedStorage:FindFirstChild("WorldEngine")
 }
 
+local function modulepath(array, module)
+	local target = require(module)
+	for _, part in next, array do
+		-- assert(target[part], "Path " .. table.concat(array, ".") .. " is an invalid Lua path for " .. module:GetFullName())
+		target = target[part]
+		if not target then
+			return
+		end
+	end
+
+	return target
+end
+
 local function path(array, opts)
 	local relativeTo = opts.relativeTo or game
 	local homePath = opts.homePath
+	local throws
+	if opts.throws ~= nil then
+		throws = opts.throws
+	else
+		throws = true
+	end
 
 	local first = array[1]
 	if (first and first:match("%@(.-)")) then
+		-- elseif vars[first] then
+		-- 	relativeTo = vars[first]
+		-- 	table.remove(array, 1)
 		relativeTo = assert(vars[first:sub(2)], "Invalid variable: " .. first)
 		table.remove(array, 1)
-	-- elseif vars[first] then
-	-- 	relativeTo = vars[first]
-	-- 	table.remove(array, 1)
 	elseif (first == "~") then
 		local isClient = not RunService:IsServer()
 		relativeTo = homePath or (isClient and game:GetService("ReplicatedStorage") or game:GetService("ServerScriptService"))
@@ -58,7 +77,7 @@ local function path(array, opts)
 			local instance = target:FindFirstChild(part, opts.findRelative)
 			if instance then
 				target = instance
-			else
+			elseif throws then
 				error(("%s is not a valid member of %s"):format(part, target:GetFullName()), 2)
 			end
 		end
@@ -79,12 +98,22 @@ function MultiImport:from(relativePath)
 		}
 	)
 
+	local isModule = parent and parent:IsA("ModuleScript")
+
 	for _, item in next, self.imports do
-		local target = path(split(item, "/"), {relativeTo = parent})
-		if target:IsA("ModuleScript") then
-			table.insert(imports, require(target))
+		local target =
+			(assert(
+			path(split(item, "/"), {relativeTo = parent, throws = false}) or (isModule and modulepath(split(item, "."))),
+			item .. " is not a valid FilePath or LuaPath relative to " .. tostring(relativePath)
+		))
+		if (typeof(target) == "Instance") then
+			if target:IsA("ModuleScript") then
+				table.insert(imports, require(target))
+			else
+				error(("[import] Invalid import: %s (%s)"):format(item, target.ClassName), 3)
+			end
 		else
-			error(("[import] Invalid import: %s (%s)"):format(item, target.ClassName), 3)
+			table.insert(imports, target)
 		end
 	end
 
