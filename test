@@ -1,16 +1,51 @@
 #!/bin/bash
-lua -lluacov spec.lua
-luacov
 
-luacheck lib
+rm_if() {
+	if [ -f $1 ]; then
+		echo "Removing stale '$1'"
+		rm "$1"
+	fi
+}
 
-printf "\e[4m"
-tail -1000 luacov.report.out | grep 'File'
+try() {
+	"$@"
+	local status=$?
+	if [ $status -ne 0 ]; then
+		echo -e "\e[31m'\e[4m$@\e[24m' FAILED\e[0m"
+	else
+		echo -e "\e[32m'\e[4m$@\e[24m' OK\e[0m"
+	fi
+	return $status
+}
 
-# List out coverage < 100%
-printf "\e[0m\e[92m"
-tail -1000 luacov.report.out | egrep '/*.lua [0-9]{0}' | awk '0+$4 >= 100'
+test() {
+	if [[ "$1" == "coverage" ]]; then
+		$(lua -lluacov spec.lua)
+		luacov
+	elif [[ "$1" == "test" ]]; then
+		lua spec.lua
+	elif [[ "$1" == "luacheck" ]]; then
+		luacheck lib
+	else
+		try luacheck lib && try lua -lluacov spec.lua && echo -e "\e[32mTests passed successfully.\e[0m"
+		luacov
+	fi
+}
 
-printf "\e[91m"
-tail -1000 luacov.report.out | egrep '/*.lua [0-9]{0}' | awk '0+$4 < 100'
+# Cleanup luacov files, keeping them screws up reporting
+rm_if "luacov.report.out"
+rm_if "luacov.stats.out"
 
+test "$@"
+
+if [ -f "luacov.report.out" ]; then 
+	printf "\e[4m"
+	tail -1000 luacov.report.out | grep 'File'
+
+	# List out coverage < 100%
+	printf "\e[0m\e[92m"
+	tail -1000 luacov.report.out | egrep '/*.lua [0-9]{0}' | awk '0+$4 >= 100'
+
+	printf "\e[91m"
+	tail -1000 luacov.report.out | egrep '/*.lua [0-9]{0}' | awk '0+$4 < 100'
+fi
