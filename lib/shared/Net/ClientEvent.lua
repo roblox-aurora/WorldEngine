@@ -1,5 +1,5 @@
 local t = require(script.Parent.Parent:WaitForChild("t"))
-local findRemoteOrThrow = require(script.internal).findRemoteOrThrow
+local findRemoteOrThrow = require(script.Parent.internal).findRemoteOrThrow
 
 local ClientEvent = {}
 ClientEvent.__index = ClientEvent

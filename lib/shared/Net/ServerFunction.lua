@@ -1,6 +1,6 @@
 local t = require(script.Parent.Parent:WaitForChild("t"))
 local Promise = require(script.Parent.Parent.Promise)
-local findOrCreateRemote = require(script.internal).findOrCreateRemote
+local findOrCreateRemote = require(script.Parent.internal).findOrCreateRemote
 
 local ServerFunction = {}
 ServerFunction.__index = ServerFunction
