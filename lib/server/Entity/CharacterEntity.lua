@@ -1,6 +1,7 @@
 local import = require(game:GetService("ReplicatedStorage"):WaitForChild("WorldEngine"):WaitForChild("Import"))
 
 local t = import "t"
+local table = import "table"
 local Entity = import "../Entity"
 
 local unsignedFloat = t.numberMin(0)
@@ -13,10 +14,34 @@ function CharacterEntity:constructor(health)
 
 	self._health = health or 100
 	self._maxHealth = health or 100
+	self._stats = {}
 end
 
 function CharacterEntity:GetHealth()
 	return self._health
+end
+
+function CharacterEntity:SetStat(name, value)
+	assert(t.tuple(t.string, t.numberMin(0))(name, value))
+	self._stats[name] = value
+end
+
+function CharacterEntity:GetStats()
+	return table.copy(self._stats)
+end
+
+function CharacterEntity:SetStats(stats)
+	assert(t.map(t.string, t.numberPositive)(stats))
+
+	for stat, value in next, stats do
+		assert(t.numberPositive(value))
+		assert(t.string(stat))
+		self._stats[stat] = value
+	end
+end
+
+function CharacterEntity:GetStat(name)
+	return self._stats[name] or 0
 end
 
 function CharacterEntity:SetHealth(health)

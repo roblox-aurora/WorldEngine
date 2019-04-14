@@ -48,4 +48,22 @@ return function()
 			expect(test:GetHealth()).to.equal(0)
 		end
 	)
+
+	it(
+		"should handle stats",
+		function()
+			local character = TestPlayerEntity.new()
+			character:SetStat("Endurance", 10)
+
+			expect(character:GetStat("Endurance")).to.equal(10)
+
+			expect(character:GetStats().Endurance).to.equal(10)
+
+			character:SetStats({
+				Strength = 20
+			})
+
+			expect(character:GetStats().Strength).to.equal(20)
+		end
+	)
 end
