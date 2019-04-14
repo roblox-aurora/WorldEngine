@@ -127,6 +127,20 @@ return function()
 				end
 			)
 
+			it(
+				"should support class.instance",
+				function()
+					local x = TestClass.new()
+					expect(TestClass.instance(x)).to.equal(true)
+
+					expect(TestClass.instance(setmetatable({}, {}))).to.equal(false)
+
+					expect(TestClass.instance(TestClass)).to.equal(false)
+
+					expect(TestClass.instance(10)).to.equal(false)
+				end
+			)
+
 			describe(
 				"Methods",
 				function()

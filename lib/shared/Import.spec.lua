@@ -72,6 +72,28 @@ return function()
 		end
 	)
 
+	it(
+		"should handle defaults",
+		function()
+			local Promisify = import_relative "../Promisify"
+			expect(Promisify).to.equal(require(script.Parent.Promisify).default)
+
+			local Promisify2 = import_relative(script.Parent.Promisify)
+			expect(Promisify2).to.equal(require(script.Parent.Promisify).default)
+		end
+	)
+
+	it(
+		"should not import non-modulescripts",
+		function()
+			expect(
+				function()
+					import_relative "/ReplicatedStorage"
+				end
+			).to.throw()
+		end
+	)
+
 	describe(
 		"Multi Imports",
 		function()
@@ -81,15 +103,6 @@ return function()
 					local Logger, Object = import_relative {"Logger", "Object"}:from "~/WorldEngine"
 					expect(Logger).to.equal(require(script.Parent.Logger))
 					expect(Object).to.equal(require(script.Parent.Object))
-				end
-			)
-
-			it(
-				"should handle using the multi-importer to import Lua relative paths",
-				function()
-					-- EQUIVALENT OF: local library = import("~/WorldEngine/Import").library
-					local library = import_relative {"library"}:from "~/WorldEngine/Import"
-					expect(library("Object")).to.equal(require(script.Parent.Object))
 				end
 			)
 

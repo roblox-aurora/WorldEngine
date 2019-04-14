@@ -12,6 +12,7 @@ function Object.Get(_, name)
 	return (assert(registry[name], tostring(name) .. " is not in the registry!"))
 end
 
+-- luacov: disable
 local function symbol(name)
 	local self = newproxy(true)
 	local wrappedName = ("Symbol(%s)"):format(name)
@@ -21,6 +22,7 @@ local function symbol(name)
 
 	return self
 end
+-- luacov: enable
 
 local ID_CLASS = symbol("Class")
 local ID_INHERITANCE = symbol("Inheritance")
@@ -166,8 +168,8 @@ function Object:Extend(name, options)
 			local metaclass = meta[ID_CLASS]
 			if metaclass then
 				return value:IsType(name), err:format(name, metaclass[ID_CLASS_NAME])
-			elseif meta[ID_CLASS_NAME] then
-				return false, "Expected " .. name .. " got class " .. meta[ID_CLASS_NAME]
+			elseif value[ID_CLASS_NAME] then
+				return false, "Expected " .. name .. " got class " .. value[ID_CLASS_NAME]
 			else
 				return false, "Expected " .. name .. " got " .. tostring(value)
 			end
@@ -196,6 +198,7 @@ function Object:Extend(name, options)
 			}
 
 			-- experimental mutators
+			-- luacov: disable
 			if mutators then
 				meta.__newindex = function(self, index, value)
 					local setterGlobal = rawget(class, "set")
@@ -223,6 +226,7 @@ function Object:Extend(name, options)
 					end
 				end
 			end
+			-- luacov: enable
 
 			local obj = setmetatable({}, meta)
 			obj.new = throwOnNew

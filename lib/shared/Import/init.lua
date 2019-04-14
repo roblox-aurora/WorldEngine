@@ -22,28 +22,9 @@ local vars = {
 	corelib = ReplicatedStorage:FindFirstChild("WorldEngine")
 }
 
-local function modulepath(array, module)
-	local target = require(module)
-	for _, part in next, array do
-		-- assert(target[part], "Path " .. table.concat(array, ".") .. " is an invalid Lua path for " .. module:GetFullName())
-		target = target[part]
-		if not target then
-			return
-		end
-	end
-
-	return target
-end
-
 local function path(array, opts)
 	local relativeTo = opts.relativeTo or game
 	local homePath = opts.homePath
-	local throws
-	if opts.throws ~= nil then
-		throws = opts.throws
-	else
-		throws = true
-	end
 
 	local first = array[1]
 	if (first and first:match("%@(.-)")) then
@@ -77,7 +58,7 @@ local function path(array, opts)
 			local instance = target:FindFirstChild(part, opts.findRelative)
 			if instance then
 				target = instance
-			elseif throws then
+			else
 				error(("%s is not a valid member of %s"):format(part, target:GetFullName()), 2)
 			end
 		end
@@ -98,22 +79,12 @@ function MultiImport:from(relativePath)
 		}
 	)
 
-	local isModule = parent and parent:IsA("ModuleScript")
-
 	for _, item in next, self.imports do
-		local target =
-			(assert(
-			path(split(item, "/"), {relativeTo = parent, throws = false}) or (isModule and modulepath(split(item, "."))),
-			item .. " is not a valid FilePath or LuaPath relative to " .. tostring(relativePath)
-		))
-		if (typeof(target) == "Instance") then
-			if target:IsA("ModuleScript") then
-				table.insert(imports, require(target))
-			else
-				error(("[import] Invalid import: %s (%s)"):format(item, target.ClassName), 3)
-			end
+		local target = path(split(item, "/"), {relativeTo = parent})
+		if target:IsA("ModuleScript") then
+			table.insert(imports, require(target))
 		else
-			table.insert(imports, target)
+			error(("[import] Invalid import: %s (%s)"):format(item, target.ClassName), 3)
 		end
 	end
 
@@ -142,8 +113,9 @@ local function import(value, relativeTo, overrides)
 		local isRelativeImport = value:match("^[%.]+/")
 		relativeTo = relativeTo or (isRelativeImport and getfenv(3).script or vars.corelib)
 		if not relativeTo then
-			-- luacov: ignore
+			-- luacov: disable
 			error("Invalid relativeTo in import")
+			-- luacov: enable
 		end
 
 		overrides = overrides or {}
@@ -198,12 +170,15 @@ if (__LEMUR__) then
 		return function(p, r)
 			if isServer then
 				local value = import(p, r, {rawImport = true, homePath = ServerScriptService})
-				print("[Import(Server)] Test import: ", ("%s (%s)"):format(p, value:GetFullName()))
-				return value, value:GetFullName()
+				print("[Import(Server)] Test import: ", ("%s (%s)"):format(p, value and value:GetFullName() or "?"))
+				return value, value and value:GetFullName() or "?"
 			else
 				local value = import(p, r, {rawImport = true})
-				print("[Import(Client)] Test import: ", ("%s (%s)"):format(p, value:GetFullName()))
-				return value, value:GetFullName()
+				print(
+					"[Import(Client)] Test import: ",
+					("%s (%s)"):format(tostring(p), typeof(value) == "Instance" and value:GetFullName() or tostring(value))
+				)
+				return value, typeof(value) == "Instance" and value:GetFullName() or tostring(value)
 			end
 		end
 	end
@@ -242,7 +217,10 @@ return setmetatable(
 		__call = function(_, ...)
 			return import(...)
 		end, -- alias: import.relative
-		__index = importNSVariable
+		__index = importNSVariable,
+		__tostring = function()
+			return "ImportSystem"
+		end
 	}
 )
 -- luacov: enable

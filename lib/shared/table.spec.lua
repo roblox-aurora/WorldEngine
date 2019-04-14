@@ -1,5 +1,15 @@
 local table = require(script.Parent.table)
 
+local function symbol(name)
+	local self = newproxy(true)
+	local wrappedName = ("Symbol(%s)"):format(name)
+	getmetatable(self).__tostring = function()
+		return wrappedName
+	end
+
+	return self
+end
+
 return function()
 	it(
 		"should handle mapping",
@@ -70,7 +80,9 @@ return function()
 				end
 			)
 
-			expect(testTable[2]).to.equal(3)
+			table.remove(testTable, 1)
+
+			expect(testTable[1]).to.equal(3)
 		end
 	)
 
@@ -81,6 +93,16 @@ return function()
 			expect(table.tostring({a = 1, b = 2})).to.equal("{a = 1, b = 2}")
 			expect(table.tostring({1, 2, {3, 4}})).to.equal("{[1] = 1, [2] = 2, [3] = {[1] = 3, [2] = 4}}")
 			expect(table.tostring({a = 1, b = {c = 2}})).to.equal("{a = 1, b = {c = 2}}")
+
+			expect(table.tostring({symbol("Test")})).to.equal("{[1] = <userdata: Symbol(Test)>}")
+			expect(
+				table.tostring(
+					{
+						function()
+						end
+					}
+				)
+			).to.equal("{[1] = <function()>}")
 		end
 	)
 
@@ -94,6 +116,13 @@ return function()
 			expect(join.d).to.be.ok()
 			expect(join[1]).to.equal(10)
 			expect(join[2]).to.equal(5)
+		end
+	)
+
+	it(
+		"should handle the advanced table.concat",
+		function()
+			expect(table.concat({1, 2, 3, {4, 5}}, ", ")).to.equal("1, 2, 3, [ 4, 5 ]")
 		end
 	)
 end

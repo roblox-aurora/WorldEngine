@@ -46,6 +46,10 @@ return function()
 			)
 			maid.RenderStepped = renderStepped
 
+			maid.Testing = {Destroy = function()
+					print("[Maid] Destroyed!")
+				end}
+
 			expect(maid.Job).to.be.ok()
 			expect(maid.Job).to.equal(newJob)
 
