@@ -113,6 +113,20 @@ function table.remove(t, query)
 	end
 end
 
+function table.copy(t)
+	local newTable = {}
+
+	for key, value in next, t do
+		if type(value) == "table" then
+			newTable[key] = table.copy(value)
+		else
+			newTable[key] = value
+		end
+	end
+
+	return newTable
+end
+
 function table.join(...)
 	local tables = {...}
 	local newTable = {}

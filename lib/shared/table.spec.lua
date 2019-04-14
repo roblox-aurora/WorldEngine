@@ -120,6 +120,20 @@ return function()
 	)
 
 	it(
+		"should handle table.copy",
+		function()
+			local oldTable = {1, 2, {3}}
+			local newTable = table.copy(oldTable)
+
+			expect(oldTable).never.to.equal(newTable)
+			expect(oldTable[1]).to.equal(newTable[1])
+			expect(oldTable[2]).to.equal(newTable[2])
+			expect(oldTable[3]).never.to.equal(newTable[3])
+			expect(oldTable[3][1]).to.equal(newTable[3][1])
+		end
+	)
+
+	it(
 		"should handle the advanced table.concat",
 		function()
 			expect(table.concat({1, 2, 3, {4, 5}}, ", ")).to.equal("1, 2, 3, [ 4, 5 ]")
