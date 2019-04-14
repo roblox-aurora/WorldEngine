@@ -47,6 +47,7 @@ end
 function CharacterEntity:SetHealth(health)
 	assert(unsignedFloat(health))
 	self._health = health
+	self._maxHealth = health
 end
 
 function CharacterEntity:TakeDamage(amount)
