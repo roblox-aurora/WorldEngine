@@ -54,10 +54,14 @@ local function table_to_str(t, prettyPrint)
 			indent = indent + 1
 			value = table_to_str(value, prettyPrint)
 			indent = indent - 1
+		elseif type(value) == "string" then
+			value = '"' .. value .. '"'
 		elseif type(value) == "function" then
-			value = "<function()>"
+			value = "<function>"
+		elseif typeof(value) == "Instance" then
+			value = "<" .. value:GetFullName() .. ">"
 		elseif type(value) == "userdata" then
-			value = "<userdata: " .. tostring(value) .. ">"
+			value = "<" .. tostring(value) .. ">"
 		end
 
 		table.insert(
