@@ -131,18 +131,23 @@ local function import(value, relativeTo, overrides)
 			MultiImport
 		)
 	end
-
-	local isRelativeImport = value:match("^[%.]+/")
-	relativeTo = relativeTo or (isRelativeImport and getfenv(3).script or vars.corelib)
-	if not relativeTo then
-		-- luacov: ignore
-		error("Invalid relativeTo in import")
-	end
-
-	overrides = overrides or {}
 	if typeof(value) == "Instance" then
-		return require(value)
+		local result = require(value)
+		if type(result) == "table" and result.default then
+			return result.default
+		else
+			return result
+		end
 	elseif type(value) == "string" then
+		local isRelativeImport = value:match("^[%.]+/")
+		relativeTo = relativeTo or (isRelativeImport and getfenv(3).script or vars.corelib)
+		if not relativeTo then
+			-- luacov: ignore
+			error("Invalid relativeTo in import")
+		end
+
+		overrides = overrides or {}
+
 		local pathRel = split(value, "/")
 
 		local result =
@@ -155,7 +160,16 @@ local function import(value, relativeTo, overrides)
 			}
 		)
 		if result:IsA("ModuleScript") then
-			return overrides.rawImport and result or require(result)
+			if overrides.rawImport then
+				return result
+			else
+				result = require(result)
+				if type(result) == "table" and result.default then
+					return result.default -- allow default imports
+				else
+					return result
+				end
+			end
 		else
 			error(("[import] Invalid import: %s (%s)"):format(value, result.ClassName), 2)
 		end

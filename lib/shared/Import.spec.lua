@@ -5,6 +5,14 @@ return function()
 	import = import.lemur()
 
 	it(
+		"should handle regular imports (similar to require)",
+		function()
+			local test = import(script.Parent.Object)
+			expect(test).to.equal(require(script.Parent.Object))
+		end
+	)
+
+	it(
 		"should handle explicit relativeTo args",
 		function()
 			local _, test = import("WorldEngine/Object", "ReplicatedStorage")
@@ -80,7 +88,7 @@ return function()
 				"should handle using the multi-importer to import Lua relative paths",
 				function()
 					-- EQUIVALENT OF: local library = import("~/WorldEngine/Import").library
-					local library = import_relative{ "library" } :from "~/WorldEngine/Import"
+					local library = import_relative {"library"}:from "~/WorldEngine/Import"
 					expect(library("Object")).to.equal(require(script.Parent.Object))
 				end
 			)
