@@ -5,6 +5,8 @@ local Logger = Object:Extend("Logger")
 local LogVerbosity = Object:Enum("LogVerbosity", {"Errors", "Warnings", "Info", "Verbose"})
 local LogPrefix = Object:Enum("LogPrefix", {"None", "Script", "ScriptFullName"})
 
+local TOKEN = "{([%d%w:%-]+)}"
+
 local loggerConstructorArgs =
 	t.interface(
 	{
@@ -54,8 +56,9 @@ end
 function Logger:_parseVariable(source, variable, value)
 	local _parseVariableArg = t.tuple(t.string, t.union(t.string, t.number), t.any)
 	assert(_parseVariableArg(source, variable, value))
-	local newSource = source:gsub(
-		"{(.-)}",
+	local newSource =
+		source:gsub(
+		TOKEN,
 		function(argl)
 			local formatter = argl:match("^" .. variable .. ":(.-)$")
 			if (argl:match("^" .. variable .. "$")) then
@@ -123,7 +126,7 @@ function Logger:Format(formatString, ...)
 		end
 
 		formatString:gsub(
-			"{(.-)}",
+			TOKEN,
 			function(value)
 				error(
 					("Invalid formatter id %s: %s"):format(
@@ -213,7 +216,6 @@ end
 function Logger:Error(formatString, ...)
 	error(self:getPrefix() .. " " .. self:Format(formatString, ...), 2)
 end
-
 
 local RunService = game:GetService("RunService")
 local Default =
