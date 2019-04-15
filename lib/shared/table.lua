@@ -44,7 +44,12 @@ function table.find(t, findFn)
 end
 
 local indent = 0
-local function table_to_str(t, prettyPrint)
+local function table_to_str(t, options)
+	options = options or {}
+
+	local prettyPrint = options.pretty and options.whitespace or nil
+	local displayTableString = options.showTableString
+
 	local values = {}
 	local char = type(prettyPrint) == "string" and prettyPrint or "\t"
 	for k, value in next, t do
@@ -52,7 +57,15 @@ local function table_to_str(t, prettyPrint)
 
 		if type(value) == "table" then
 			indent = indent + 1
-			value = table_to_str(value, prettyPrint)
+
+			if displayTableString then
+				-- luacov: disable
+				value = "(" .. tostring(value) .. ") " .. table_to_str(value, options)
+				-- luacov: enable
+			else
+				value = table_to_str(value, options)
+			end
+
 			indent = indent - 1
 		elseif type(value) == "string" then
 			value = '"' .. value .. '"'
@@ -69,7 +82,7 @@ local function table_to_str(t, prettyPrint)
 			(prettyPrint and "%s" .. char .. "%s = %s" or "%s%s = %s"):format(
 				prettyPrint and (char):rep(indent) or "",
 				isNumericKey and "[" .. tostring(k) .. "]" or k,
-				value
+				tostring(value)
 			)
 		)
 	end
@@ -79,8 +92,12 @@ local function table_to_str(t, prettyPrint)
 			table_concat(values, prettyPrint and ",\n" or ", ") .. (prettyPrint and "\n" .. (char):rep(indent) or "") .. "}"
 end
 
-function table.tostring(t, pretty)
-	return table_to_str(t, pretty)
+function table.tostring(t, options)
+	if typeof(options) == "table" then
+		return table_to_str(t, options)
+	else
+		return table_to_str(t, {pretty = options ~= nil, whitespace = type(options) == "string" and options or "\t"})
+	end
 end
 
 -- Improved table.concat

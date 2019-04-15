@@ -92,7 +92,7 @@ return function()
 			expect(table.tostring({1, 2, 3, 4})).to.equal("{[1] = 1, [2] = 2, [3] = 3, [4] = 4}")
 			expect(table.tostring({a = 1, b = 2})).to.equal("{a = 1, b = 2}")
 			expect(table.tostring({1, 2, {3, 4}})).to.equal("{[1] = 1, [2] = 2, [3] = {[1] = 3, [2] = 4}}")
-			expect(table.tostring({a = 1, b = {c = 2}})).to.equal("{a = 1, b = {c = 2}}")
+			expect(table.tostring({a = 1, b = {c = 2}}, {})).to.equal("{a = 1, b = {c = 2}}")
 
 			expect(table.tostring({symbol("Test")})).to.equal("{[1] = <Symbol(Test)>}")
 			expect(
