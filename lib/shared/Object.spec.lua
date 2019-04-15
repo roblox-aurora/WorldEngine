@@ -219,6 +219,56 @@ return function()
 		end
 	)
 
+	describe(
+		"Destroy",
+		function()
+			it(
+				"should be able to destroy objects",
+				function()
+					local MyTestDestroyedClass = Object:Extend("TestDestroyedClass")
+					function MyTestDestroyedClass:constructor()
+						self._test = 10
+					end
+					function MyTestDestroyedClass:destructor()
+					end
+
+					local instance = MyTestDestroyedClass.new()
+					instance:Destroy()
+
+					expect(tostring(instance)).to.equal("DestroyedObject")
+
+					expect(
+						function()
+							print(instance._test)
+						end
+					).to.throw()
+
+					expect(
+						function()
+							instance._test = 10
+						end
+					).to.throw()
+				end
+			)
+			it(
+				"should not allow destroying classes or ObjectFactory",
+				function()
+					expect(
+						function()
+							Object:Destroy()
+						end
+					).to.throw()
+
+					expect(
+						function()
+							TestClass:Destroy()
+						end
+					).to.throw()
+				end
+			)
+		end
+	)
+
 	it(
 		"should be able to get classes with Get()",
 		function()

@@ -108,6 +108,43 @@ local function errorf(fmt, ...)
 	error((fmt):format(...), 3)
 end
 
+local Destroyed = {
+	__index = function()
+		error("Attempt to index destroyed object", 2)
+	end,
+	__newindex = function()
+		error("Attempt to set value on destroyed object", 2)
+	end,
+	__tostring = function()
+		return "DestroyedObject"
+	end
+}
+
+function Object:Destroy()
+	-- luacov: disable
+	if self == Object then
+		error("Cannot call destroy on ObjectFactory!", 2)
+	end
+	-- luacov: enable
+
+	local meta = getmetatable(self)
+	if meta[ID_INSTANCE] then
+		-- If the user wants to do their own cleanup, they can! :-)
+		if type(self.destructor) == "function" then
+			self:destructor()
+		end
+
+		for index in next, self do
+			-- Set child values to nil
+			self[index] = nil
+		end
+
+		setmetatable(self, Destroyed)
+	else
+		error("Cannot call destroy on " .. tostring(self))
+	end
+end
+
 --- Class:Extend(str) for class extending, default is Object:Extend( ) for base classes
 function Object:Extend(name, options)
 	assert(type(name) == "string")
