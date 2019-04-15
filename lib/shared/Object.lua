@@ -154,6 +154,7 @@ function Object:Extend(name, options)
 	local sealed = options.sealed or false
 	local abstract = options.abstract or false
 	local mutators = options.mutators or false
+	local operators = options.operators or false
 
 	if (registry[name]) then
 		errorf("[Object] Duplicate class `%s`", name)
@@ -233,6 +234,17 @@ function Object:Extend(name, options)
 					end
 				end
 			}
+
+			if operators then
+				meta.__add = self.add or nil
+				meta.__sub = self.sub or nil
+				meta.__mul = self.mul or nil
+				meta.__div = self.div or nil
+				meta.__mod = self.mod or nil
+				meta.__lt = self.lessthan or nil
+				meta.__gt = self.greater or nil
+				meta.__eq = self.equal or nil
+			end
 
 			-- experimental mutators
 			-- luacov: disable
