@@ -30,6 +30,7 @@ local ID_INSTANCE = symbol("Instance")
 local ID_PARENT_CLASS = symbol("ParentClass")
 local ID_CLASS_NAME = symbol("ClassName")
 local ID_SEALED = symbol("SealedModifier")
+local ID_REF = symbol("Ref")
 
 --- Creates a sealed enum class
 function Object.Enum(_, name, values)
@@ -145,8 +146,11 @@ function Object:Destroy()
 	end
 end
 
+local refId = 0
+
 --- Class:Extend(str) for class extending, default is Object:Extend( ) for base classes
 function Object:Extend(name, options)
+	refId = refId + 1
 	assert(type(name) == "string")
 	assert(type(options) == "table" or options == nil)
 
@@ -171,12 +175,13 @@ function Object:Extend(name, options)
 	local super = {
 		__index = self,
 		__tostring = function(self)
-			return "class " .. name
+			return "[class " .. name .. "]"
 		end
 	}
 
 	local class = {}
 	class.__index = class
+	class[ID_REF] = refId
 	class[ID_CLASS_NAME] = name
 	class.ClassName = name
 	class[ID_PARENT_CLASS] = super
@@ -219,8 +224,10 @@ function Object:Extend(name, options)
 	-- Handler for X.new(...) - Calls X.constructor(...) internally
 	if not abstract then
 		function class.new(...)
+			refId = refId + 1
 			local allowNewProperties = true
 			local meta = {
+				[ID_REF] = refId,
 				[ID_PARENT_CLASS] = super,
 				[ID_CLASS] = class,
 				-- __newindex = ,
@@ -230,7 +237,7 @@ function Object:Extend(name, options)
 					if type(self.tostring) == "function" then
 						return self:tostring()
 					else
-						return "Object@" .. tostring(class)
+						return name .. ": " .. string.format("%.16X", getmetatable(self)[ID_REF])
 					end
 				end
 			}
