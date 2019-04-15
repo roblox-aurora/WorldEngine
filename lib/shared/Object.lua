@@ -235,6 +235,8 @@ function Object:Extend(name, options)
 				end
 			}
 
+			-- luacov: disable
+			-- TODO: Write tests
 			if operators then
 				meta.__add = self.add or nil
 				meta.__sub = self.sub or nil
@@ -245,9 +247,11 @@ function Object:Extend(name, options)
 				meta.__gt = self.greater or nil
 				meta.__eq = self.equal or nil
 			end
+			-- luacov: enable
 
 			-- experimental mutators
 			-- luacov: disable
+			-- TODO: Write tests
 			if mutators then
 				meta.__newindex = function(self, index, value)
 					local setterGlobal = rawget(class, "set")
