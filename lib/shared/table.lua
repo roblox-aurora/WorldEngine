@@ -135,6 +135,10 @@ function table.remove(t, query)
 end
 
 function table.copy(t)
+	if type(t) ~= "table" then
+		error("Invalid argument to table.copy(t)", 2)
+	end
+
 	local newTable = {}
 
 	for key, value in next, t do

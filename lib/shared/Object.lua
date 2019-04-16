@@ -245,14 +245,14 @@ function Object:Extend(name, options)
 			-- luacov: disable
 			-- TODO: Write tests
 			if operators then
-				meta.__add = self.add or nil
-				meta.__sub = self.sub or nil
-				meta.__mul = self.mul or nil
-				meta.__div = self.div or nil
-				meta.__mod = self.mod or nil
-				meta.__lt = self.lessthan or nil
-				meta.__gt = self.greater or nil
-				meta.__eq = self.equal or nil
+				meta.__add = class.add or nil
+				meta.__sub = class.sub or nil
+				meta.__mul = class.mul or nil
+				meta.__div = class.div or nil
+				meta.__mod = class.mod or nil
+				meta.__lt = class.lessthan or nil
+				meta.__gt = class.greater or nil
+				meta.__eq = class.equal or nil
 			end
 			-- luacov: enable
 
