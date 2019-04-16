@@ -154,7 +154,7 @@ if (extraVarsModule and extraVarsModule:IsA("ModuleScript")) then
 	local extraVars = require(extraVarsModule)
 	assert(typeof(extraVars) == "table")
 	for name, value in next, extraVars do
-		assert(typeof(value) == "Instance")
+		assert(typeof(value) == "Instance", name .. " is not an instance")
 		vars[name] = value
 	end
 end
