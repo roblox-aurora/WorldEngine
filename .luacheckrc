@@ -33,6 +33,10 @@ stds.testez = {
 	}
 }
 
+exclude_files = {
+	"lib/shared/Roact"
+}
+
 ignore = {
 	"212", -- unused arguments
 	"self",
