@@ -59,9 +59,9 @@ local function table_to_str(t, options)
 			indent = indent + 1
 
 			if displayTableString then
+				-- luacov: enable
 				-- luacov: disable
 				value = "(" .. tostring(value) .. ") " .. table_to_str(value, options)
-				-- luacov: enable
 			else
 				value = table_to_str(value, options)
 			end
@@ -135,9 +135,7 @@ function table.remove(t, query)
 end
 
 function table.copy(t)
-	if type(t) ~= "table" then
-		error("Invalid argument to table.copy(t)", 2)
-	end
+	assert(type(t) == "table", "Invalid Argument #1 to table.copy - expected table got" .. typeof(t))
 
 	local newTable = {}
 
@@ -150,6 +148,28 @@ function table.copy(t)
 	end
 
 	return newTable
+end
+
+function table.sub(tbl, start, finish)
+	assert(type(tbl) == "table", "Invalid Argument #1 to table.copy - expected table got" .. typeof(tbl))
+	assert(
+		type(start) == "number" or start == nil,
+		"Invalid Argument #2 to table.copy - expected number got" .. typeof(start)
+	)
+	assert(
+		type(finish) == "number" or finish == nil,
+		"Invalid Argument #3 to table.copy - expected number got" .. typeof(finish)
+	)
+
+	finish = finish or #tbl
+	start = start or 1
+
+	local result = {}
+	for i = start, finish do
+		table.insert(result, tbl[i])
+	end
+
+	return result
 end
 
 function table.join(...)

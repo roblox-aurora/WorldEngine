@@ -105,7 +105,7 @@ return function()
 			).to.equal("{[1] = <function>}")
 
 			expect(table.tostring({Instance.new("Frame")})).to.equal("{[1] = <Frame>}")
-			expect(table.tostring({"Test"})).to.equal("{[1] = \"Test\"}")
+			expect(table.tostring({"Test"})).to.equal('{[1] = "Test"}')
 		end
 	)
 
@@ -140,6 +140,17 @@ return function()
 		"should handle the advanced table.concat",
 		function()
 			expect(table.concat({1, 2, 3, {4, 5}}, ", ")).to.equal("1, 2, 3, [ 4, 5 ]")
+		end
+	)
+
+	it(
+		"should handle table.sub",
+		function()
+			local subTable = table.sub({1, 2, 3, 4}, 2)
+			expect(table.tostring(subTable)).to.equal("{[1] = 2, [2] = 3, [3] = 4}")
+
+			local subTable2 = table.sub({"a", "b", "c", "d", "e", "f"}, 2, 4)
+			expect(table.tostring(subTable2)).to.equal("{[1] = \"b\", [2] = \"c\", [3] = \"d\"}")
 		end
 	)
 end
