@@ -150,7 +150,19 @@ return function()
 			expect(table.tostring(subTable)).to.equal("{[1] = 2, [2] = 3, [3] = 4}")
 
 			local subTable2 = table.sub({"a", "b", "c", "d", "e", "f"}, 2, 4)
-			expect(table.tostring(subTable2)).to.equal("{[1] = \"b\", [2] = \"c\", [3] = \"d\"}")
+			expect(table.tostring(subTable2)).to.equal('{[1] = "b", [2] = "c", [3] = "d"}')
+		end
+	)
+
+	it(
+		"should handle table.truncate",
+		function()
+			local testTable = {1, 2, nil, 3, 4, nil, 5}
+			expect(testTable[3]).never.to.be.ok()
+
+			table.truncate(testTable)
+			expect(testTable[3]).to.be.ok()
+			expect(testTable[3]).to.equal(3)
 		end
 	)
 end

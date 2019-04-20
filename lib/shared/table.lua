@@ -1,5 +1,6 @@
 local table_remove = table.remove
 local table_concat = table.concat
+local table_insert = table.insert
 local table = setmetatable({}, {__index = table})
 
 function table.map(t, mapFn)
@@ -24,7 +25,7 @@ function table.filter(t, filterFn)
 	for i = 1, #t do
 		local value = t[i]
 		if filterFn(value) then
-			table.insert(filtered, value)
+			table_insert(filtered, value)
 		end
 	end
 
@@ -106,9 +107,9 @@ function table.concat(t, sep)
 	for i = 1, #t do
 		local value = t[i]
 		if type(value) == "table" then
-			table.insert(values, "[ " .. table.concat(value, sep) .. " ]")
+			table_insert(values, "[ " .. table.concat(value, sep) .. " ]")
 		else
-			table.insert(values, tostring(value))
+			table_insert(values, tostring(value))
 		end
 	end
 
@@ -166,10 +167,35 @@ function table.sub(tbl, start, finish)
 
 	local result = {}
 	for i = start, finish do
-		table.insert(result, tbl[i])
+		table_insert(result, tbl[i])
 	end
 
 	return result
+end
+
+function table.truncate(t)
+	assert(type(t) == "table", "Argument #1 to table.truncate - expected table got " .. typeof(t))
+	for i = 1, #t do
+		if t[i] == nil then
+			table.remove(t, i)
+			-- luacheck: ignore
+			i = i - 1
+		end
+	end
+end
+
+function table.insert(t, value, rep)
+	assert(type(t) == "table", "Argument #1 to table.insert - expected table got " .. typeof(t))
+	assert(type(rep) == "number" or rep == nil, "Argument #3 to table.insert - expected number got " .. typeof(rep))
+
+	if rep then
+		for _ = 1, #rep do
+			--table_insert(t, value)
+			t[#t + 1] = value
+		end
+	else
+		t[#t + 1] = value
+	end
 end
 
 function table.join(...)
@@ -181,7 +207,7 @@ function table.join(...)
 			if (type(k) == "string") then
 				newTable[k] = v
 			else
-				table.insert(newTable, v)
+				table_insert(newTable, v)
 			end
 		end
 	end
