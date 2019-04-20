@@ -12,13 +12,14 @@ local split = string.split or function(self, delimiter)
 	end
 
 local RunService = game:GetService("RunService")
+local IS_SERVER = RunService:IsServer()
 local ServerScriptService = game:GetService("ServerScriptService")
 local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local vars = {
-	["local"] = RunService:IsServer() and ServerStorage or ReplicatedStorage,
-	core = (RunService:IsServer() or __LEMUR__) and ServerScriptService:FindFirstChild("WorldEngine"),
+	["local"] = IS_SERVER and ServerStorage or ReplicatedStorage,
+	core = (IS_SERVER or __LEMUR__) and ServerScriptService:FindFirstChild("WorldEngine"),
 	corelib = ReplicatedStorage:FindFirstChild("WorldEngine")
 }
 
@@ -55,7 +56,7 @@ local function path(array, opts)
 		if part == ".." then
 			target = target.Parent
 		else
-			local instance = target:FindFirstChild(part, opts.findRelative)
+			local instance = IS_SERVER and target:FindFirstChild(part, opts.findRelative) or target:WaitForChild(part, 10)
 			if instance then
 				target = instance
 			else
