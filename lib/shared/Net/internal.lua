@@ -2,7 +2,7 @@ local eventFolder
 local functionsFolder
 
 local function isValidRemoteType(value)
-	return type(value) == "string" and (value == "RemoteEvent" or value == "RemoteEvent"), "Invalid type: " ..
+	return type(value) == "string" and (value == "RemoteEvent" or value == "RemoteFunction"), "Invalid type: " ..
 		tostring(value) .. ", expected 'RemoteEvent' | 'RemoteFunction'"
 end
 
@@ -14,6 +14,7 @@ local function findOrCreateFolder(folderName, parent)
 		local newFolder = Instance.new("Folder")
 		newFolder.Name = folderName
 		newFolder.Parent = script or parent
+		return newFolder
 	end
 end
 
