@@ -29,10 +29,10 @@ local function path(array, opts)
 
 	local first = array[1]
 	if (first and first:match("%@(.-)")) then
-		-- elseif vars[first] then
-		-- 	relativeTo = vars[first]
-		-- 	table.remove(array, 1)
 		relativeTo = assert(vars[first:sub(2)], "Invalid variable: " .. first)
+		table.remove(array, 1)
+	elseif first:match("^([A-z][A-z0-9]+)$") and vars[first] then
+		relativeTo = vars[first]
 		table.remove(array, 1)
 	elseif (first == "~") then
 		local isClient = not RunService:IsServer()
@@ -116,7 +116,7 @@ local function import(value, relativeTo, overrides)
 		if not relativeTo then
 			-- luacov: disable
 			error("Invalid relativeTo in import")
-			-- luacov: enable
+		-- luacov: enable
 		end
 
 		overrides = overrides or {}
@@ -148,15 +148,30 @@ local function import(value, relativeTo, overrides)
 		end
 	end
 end
--- luacov: disable
--- variable discovery
-local extraVarsModule = ReplicatedStorage:FindFirstChild(".imports", true)
-if (extraVarsModule and extraVarsModule:IsA("ModuleScript")) then
-	local extraVars = require(extraVarsModule)
+
+local function load_imports(module)
+	assert(typeof(module) == "Instance" and module:IsA("ModuleScript"), "Imports declaration should be a ModuleScript!")
+
+	local extraVars = require(module)
 	assert(typeof(extraVars) == "table")
 	for name, value in next, extraVars do
 		assert(typeof(value) == "Instance", name .. " is not an instance")
 		vars[name] = value
+	end
+end
+
+-- luacov: disable
+-- variable discovery
+
+if (IS_SERVER) then
+	local extraServerVarsModule = ServerScriptService:FindFirstChild(".imports", true)
+	if (extraServerVarsModule and extraServerVarsModule:IsA("ModuleScript")) then
+		load_imports(extraServerVarsModule)
+	end
+else
+	local extraVarsModule = ReplicatedStorage:FindFirstChild(".imports", true)
+	if (extraVarsModule and extraVarsModule:IsA("ModuleScript")) then
+		load_imports(extraVarsModule)
 	end
 end
 
