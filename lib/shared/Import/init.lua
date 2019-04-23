@@ -17,6 +17,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local modules = {}
+
 local vars = {
 	["local"] = IS_SERVER and ServerStorage or ReplicatedStorage,
 	core = (IS_SERVER or __LEMUR__) and ServerScriptService:FindFirstChild("WorldEngine"),
@@ -31,8 +33,8 @@ local function path(array, opts)
 	if (first and first:match("%@(.-)")) then
 		relativeTo = assert(vars[first:sub(2)], "Invalid variable: " .. first)
 		table.remove(array, 1)
-	elseif first:match("^([A-z][A-z0-9]+)$") and vars[first] then
-		relativeTo = vars[first]
+	elseif first:match("^([A-z][A-z0-9]+)$") and modules[first] then
+		relativeTo = modules[first]
 		table.remove(array, 1)
 	elseif (first == "~") then
 		local isClient = not RunService:IsServer()
@@ -174,6 +176,29 @@ else
 		load_imports(extraVarsModule)
 	end
 end
+
+local function strtrim(s)
+	return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+local function getModules(dir, mods)
+	for _, modulePath in pairs(mods) do
+		local module = path(split(strtrim(modulePath), "/"), {relativeTo = dir})
+		modules[module.Name] = module
+	end
+end
+
+local function findModuleDeclarations(dir)
+	for _, child in pairs(dir:GetChildren()) do
+		if (child:IsA("StringValue") and child.Name == "modules") then
+			getModules(child.Parent, split(child.Value, "\n"))
+		else
+			findModuleDeclarations(child)
+		end
+	end
+end
+
+findModuleDeclarations(ReplicatedStorage)
 
 local prototype = {}
 
