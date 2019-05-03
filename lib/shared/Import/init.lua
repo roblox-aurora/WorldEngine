@@ -1,4 +1,8 @@
 local split = string.split or function(self, delimiter)
+		if type(self) ~= "string" then
+			error("Expected string got " .. typeof(self))
+		end
+
 		local result = {}
 		local from = 1
 		local delim_from, delim_to = string.find(self, delimiter, from)
@@ -24,6 +28,10 @@ local vars = {
 	core = (IS_SERVER or __LEMUR__) and ServerScriptService:FindFirstChild("WorldEngine"),
 	corelib = ReplicatedStorage:FindFirstChild("WorldEngine")
 }
+
+local function strtrim(s)
+	return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
 
 local function path(array, opts)
 	local relativeTo = opts.relativeTo or game
@@ -94,7 +102,10 @@ function MultiImport:from(relativePath)
 	return unpack(imports)
 end
 
-local function import(value, relativeTo, overrides)
+local currentlyLoading = {}
+local function import_internal(value, relativeTo, overrides)
+	local result = nil
+
 	if type(value) == "table" then -- Handle multi-import
 		return setmetatable(
 			{
@@ -106,15 +117,11 @@ local function import(value, relativeTo, overrides)
 		)
 	end
 	if typeof(value) == "Instance" then
-		local result = require(value)
-		if type(result) == "table" and result.default then
-			return result.default
-		else
-			return result
-		end
+		-- luacheck: ignore
+		result = require(value)
 	elseif type(value) == "string" then
 		local isRelativeImport = value:match("^[%.]+/")
-		relativeTo = relativeTo or (isRelativeImport and getfenv(3).script or vars.corelib)
+		relativeTo = relativeTo or (isRelativeImport and getfenv(4).script or vars.corelib)
 		if not relativeTo then
 			-- luacov: disable
 			error("Invalid relativeTo in import")
@@ -123,22 +130,49 @@ local function import(value, relativeTo, overrides)
 
 		overrides = overrides or {}
 
-		local pathRel = split(value, "/")
-
-		local result =
+		result =
+			result or
 			path(
-			pathRel,
-			{
-				homePath = overrides.homePath,
-				relativeTo = relativeTo,
-				findRelative = not isRelativeImport
-			}
-		)
+				split(value, "/"),
+				{
+					homePath = overrides.homePath,
+					relativeTo = relativeTo,
+					findRelative = not isRelativeImport
+				}
+			)
+
+		local caller = getfenv(4).script
+
 		if result:IsA("ModuleScript") then
 			if overrides.rawImport then
 				return result
 			else
+				currentlyLoading[caller] = result
+				local currentModule = result
+				local depth = 0
+
+				while currentModule do
+					depth = depth + 1
+					currentModule = currentlyLoading[currentModule]
+
+					if currentModule == result then
+						local str = currentModule.Name or "?"
+
+						for _ = 1, depth do
+							currentModule = currentlyLoading[currentModule]
+							str = str .. " -> " .. currentModule.Name
+						end
+
+						error("Failed to import! Detected a circular dependency chain: " .. str, 2)
+					end
+				end
+
 				result = require(result)
+
+				if currentlyLoading[caller] == module then
+					currentlyLoading[caller] = nil
+				end
+
 				if type(result) == "table" and result.default then
 					return result.default -- allow default imports
 				else
@@ -148,6 +182,25 @@ local function import(value, relativeTo, overrides)
 		else
 			error(("[import] Invalid import: %s (%s)"):format(value, result.ClassName), 2)
 		end
+	end
+end
+
+local function import(value, relativeTo, overrides)
+	if typeof(value) == "Instance" then
+		return require(value)
+	end
+
+	if (type(value) == "string" and value:match("^([A-z0-9%.%-/@]+)$")) or type(value) == "table" then
+		return import_internal(value, relativeTo, overrides)
+	else
+		local importList = {}
+		local parts = split(value, ",")
+
+		for _, part in next, parts do
+			table.insert(importList, import_internal(strtrim(part), relativeTo, overrides))
+		end
+
+		return unpack(importList)
 	end
 end
 
@@ -175,10 +228,6 @@ else
 	if (extraVarsModule and extraVarsModule:IsA("ModuleScript")) then
 		load_imports(extraVarsModule)
 	end
-end
-
-local function strtrim(s)
-	return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
 local function getModules(dir, mods)
@@ -239,6 +288,40 @@ end
 
 function prototype.relative(relativePath)
 	return import(relativePath, getfenv(2).script)
+end
+
+function prototype.lazy(relativePath)
+	local ref
+	return setmetatable(
+		{},
+		{
+			__index = function(self, index)
+				if not ref then
+					ref = import_internal(relativePath)
+				end
+
+				return ref[index]
+			end
+		}
+	)
+end
+
+function prototype.async(relativePath, relativeTo, overrides)
+	local Promise = require(script.Parent.Promise)
+	return Promise.new(
+		function(resolve, reject)
+			Promise.spawn(
+				function()
+					local success, result = pcall(import, relativePath, relativeTo, overrides)
+					if success then
+						resolve(result)
+					else
+						reject(result)
+					end
+				end
+			)
+		end
+	)
 end
 
 local function importNSVariable(self, name)

@@ -73,17 +73,6 @@ return function()
 	)
 
 	it(
-		"should handle defaults",
-		function()
-			local Promisify = import_relative "../Promisify"
-			expect(Promisify).to.equal(require(script.Parent.Promisify).default)
-
-			local Promisify2 = import_relative(script.Parent.Promisify)
-			expect(Promisify2).to.equal(require(script.Parent.Promisify).default)
-		end
-	)
-
-	it(
 		"should not import non-modulescripts",
 		function()
 			expect(
