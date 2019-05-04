@@ -173,11 +173,7 @@ local function import_internal(value, relativeTo, overrides)
 					currentlyLoading[caller] = nil
 				end
 
-				if type(result) == "table" and result.default then
-					return result.default -- allow default imports
-				else
-					return result
-				end
+				return result
 			end
 		else
 			error(("[import] Invalid import: %s (%s)"):format(value, result.ClassName), 2)
