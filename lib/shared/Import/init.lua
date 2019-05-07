@@ -20,6 +20,7 @@ local IS_SERVER = RunService:IsServer()
 local ServerScriptService = game:GetService("ServerScriptService")
 local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Path = require(script.Parent.Path)
 
 local modules = {}
 
@@ -34,48 +35,40 @@ local function strtrim(s)
 end
 
 local function path(array, opts)
-	local relativeTo = opts.relativeTo or game
-	local homePath = opts.homePath
-
-	local first = array[1]
-	if (first and first:match("%@(.-)")) then
-		relativeTo = assert(vars[first:sub(2)], "Invalid variable: " .. first)
-		table.remove(array, 1)
-	elseif first:match("^([A-z][A-z0-9]+)$") and modules[first] then
-		relativeTo = modules[first]
-		table.remove(array, 1)
-	elseif (first == "~") then
-		local isClient = not RunService:IsServer()
-		relativeTo = homePath or (isClient and game:GetService("ReplicatedStorage") or game:GetService("ServerScriptService"))
-		table.remove(array, 1)
-	elseif (first == "") then -- root
-		relativeTo = game
-		table.remove(array, 1)
-	elseif (first == ".") then -- remove script relativity.
-		table.remove(array, 1)
+	if type(array) == "string" then
+		array = Path.parse(array)
 	end
 
-	local target
-	if type(relativeTo) == "string" then
-		target = game:GetService(relativeTo)
-	else
-		target = relativeTo
-	end
+	print("PathGet", table.concat(array, "/"))
 
-	for _, part in next, array do
-		if part == ".." then
-			target = target.Parent
-		else
-			local instance = IS_SERVER and target:FindFirstChild(part, opts.findRelative) or target:WaitForChild(part, 10)
-			if instance then
-				target = instance
-			else
-				error(("%s is not a valid member of %s"):format(part, target:GetFullName()), 2)
-			end
-		end
-	end
+	-- local homePath = opts.homePath
 
-	return target
+	-- local first = array[1]
+	-- if (first and first:match("%@(.-)")) then
+	-- 	opts.relativeTo = assert(vars[first:sub(2)], "Invalid variable: " .. first)
+	-- 	table.remove(array, 1)
+	-- elseif first:match("^([A-z][A-z0-9]+)$") and modules[first] then
+	-- 	opts.relativeTo = modules[first]
+	-- 	table.remove(array, 1)
+	-- elseif (first == "~") then
+	-- 	local isClient = not RunService:IsServer()
+	-- 	opts.relativeTo =
+	-- 		homePath or (isClient and game:GetService("ReplicatedStorage") or game:GetService("ServerScriptService"))
+	-- 	table.remove(array, 1)
+	-- elseif (first == "") then -- root
+	-- 	opts.relativeTo = game
+	-- 	table.remove(array, 1)
+	-- elseif (first == ".") then -- remove script relativity.
+	-- 	table.remove(array, 1)
+	-- end
+
+	local isClient = not RunService:IsServer()
+
+	opts.homePath =
+		opts.homePath or (isClient and game:GetService("ReplicatedStorage") or game:GetService("ServerScriptService"))
+	opts.variables = vars
+	opts.modules = modules
+	return Path.get(array, opts)
 end
 
 local MultiImport = {}
@@ -133,7 +126,7 @@ local function import_internal(value, relativeTo, overrides)
 		result =
 			result or
 			path(
-				split(value, "/"),
+				value,
 				{
 					homePath = overrides.homePath,
 					relativeTo = relativeTo,
@@ -141,42 +134,46 @@ local function import_internal(value, relativeTo, overrides)
 				}
 			)
 
-		local caller = getfenv(4).script
+		local caller = getfenv(4).script or "commandBar"
 
-		if result:IsA("ModuleScript") then
-			if overrides.rawImport then
-				return result
-			else
-				currentlyLoading[caller] = result
-				local currentModule = result
-				local depth = 0
+		if typeof(result) == "Instance" then
+			if result:IsA("ModuleScript") then
+				if overrides.rawImport then
+					return result
+				else
+					currentlyLoading[caller] = result
+					local currentModule = result
+					local depth = 0
 
-				while currentModule do
-					depth = depth + 1
-					currentModule = currentlyLoading[currentModule]
+					while currentModule do
+						depth = depth + 1
+						currentModule = currentlyLoading[currentModule]
 
-					if currentModule == result then
-						local str = currentModule.Name or "?"
+						if currentModule == result then
+							local str = currentModule.Name or "?"
 
-						for _ = 1, depth do
-							currentModule = currentlyLoading[currentModule]
-							str = str .. " -> " .. currentModule.Name
+							for _ = 1, depth do
+								currentModule = currentlyLoading[currentModule]
+								str = str .. " -> " .. currentModule.Name
+							end
+
+							error("Failed to import! Detected a circular dependency chain: " .. str, 2)
 						end
-
-						error("Failed to import! Detected a circular dependency chain: " .. str, 2)
 					end
+
+					result = require(result)
+
+					if currentlyLoading[caller] == module then
+						currentlyLoading[caller] = nil
+					end
+
+					return result
 				end
-
-				result = require(result)
-
-				if currentlyLoading[caller] == module then
-					currentlyLoading[caller] = nil
-				end
-
-				return result
+			else
+				error(("[import] Invalid import: %s (%s, IsA %s)"):format(value, result:GetFullName(), result.ClassName), 2)
 			end
 		else
-			error(("[import] Invalid import: %s (%s)"):format(value, result.ClassName), 2)
+			return result
 		end
 	end
 end
@@ -190,10 +187,10 @@ local function import(value, relativeTo, overrides)
 		return import_internal(value, relativeTo, overrides)
 	else
 		local importList = {}
-		local parts = split(value, ",")
+		local parts = Path.parseList(value)
 
 		for _, part in next, parts do
-			table.insert(importList, import_internal(strtrim(part), relativeTo, overrides))
+			table.insert(importList, import_internal(part, relativeTo, overrides))
 		end
 
 		return unpack(importList)

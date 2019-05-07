@@ -1,7 +1,16 @@
 local table_remove = table.remove
 local table_concat = table.concat
 local table_insert = table.insert
-local table = setmetatable({}, {__index = table})
+local table =
+	setmetatable(
+	{},
+	{
+		__index = table,
+		__call = function(self, onTable)
+			return setmetatable(self.copy(onTable), {__index = table})
+		end
+	}
+)
 
 function table.map(t, mapFn)
 	assert(type(t) == "table", "Argument #1 to table.map - expected table got " .. type(t))
@@ -30,6 +39,20 @@ function table.filter(t, filterFn)
 	end
 
 	return filtered
+end
+
+function table.contains(t, value)
+	assert(type(t) == "table", "Argument #1 to table.contains - expected table got " .. type(t))
+	assert(value ~= nil, "Argument #2 to table.contains - expected non-nil value got " .. type(value))
+
+	for i = 1, #t do
+		local tvalue = t[i]
+		if tvalue == value then
+			return true
+		end
+	end
+
+	return false
 end
 
 function table.find(t, findFn)
