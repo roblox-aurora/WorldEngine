@@ -109,16 +109,21 @@ local function path(fullPath, opts)
 
 	local stack = {target.Name}
 	local mode = "instance"
+	local strict = true
 
 	for i, part in next, fullPath do
-		print("parsePart", part)
-		if part == ".." then
+		if part == ".." and mode == "instance" then
 			target = target.Parent
 			table.insert(stack, target.Name)
-		elseif part == "#!" then -- allow LuaPathResolve
+		elseif part == "#!" and mode == "instance" then -- allow LuaPathResolve
 			-- elseif part:match("{.*}") then
 			-- e.g. /ReplicatedStorage/MyModule/!#/MyFunction would be like require(ReplicatedStorage.MyModule).MyFunction
 			target = require(target)
+			strict = true
+			mode = "lua"
+		elseif part == "#?" and mode == "instance" then
+			target = require(target)
+			strict = false
 			mode = "lua"
 		elseif part == "*#!" and i == #fullPath and mode == "instance" then
 			local values = {}
@@ -129,12 +134,14 @@ local function path(fullPath, opts)
 			end
 			return values
 		elseif part == "*" and i == #fullPath then
-			-- /ReplicatedStorage/MyModule/!#/MyTable/* - unpacks table, or gets children of instance
-			-- return unpack(target)
-			if typeof(target) == "Instance" then
+			-- /ReplicatedStorage/MyModule/!#/MyTable/* - returns unpacked table, or gets children of instance
+			local targetType = typeof(target)
+			if targetType == "Instance" then
 				return target:GetChildren()
-			else
+			elseif targetType == "table" then
 				return unpack(target)
+			else
+				return target
 			end
 		else
 			if typeof(target) == "Instance" then
@@ -151,12 +158,16 @@ local function path(fullPath, opts)
 					table.insert(stack, part)
 					target = value
 				else
-					return nil
+					if strict then
+						error(("%s is not a valid path relative to %s"):format(part, table.concat(stack, "/")), 2)
+					else
+						return nil
+					end
 				end
 			else
 				error(
 					"Cannot resolve (" ..
-						table.concat(fullPath, "/") .. ") from type: " .. type(target) .. "(" .. table.concat(stack, "/") .. ")"
+						table.concat(fullPath, "/") .. ") from (" .. type(target) .. ") " .. table.concat(stack, "/") .. ""
 				)
 			end
 		end

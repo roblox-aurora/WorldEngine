@@ -39,29 +39,6 @@ local function path(array, opts)
 		array = Path.parse(array)
 	end
 
-	print("PathGet", table.concat(array, "/"))
-
-	-- local homePath = opts.homePath
-
-	-- local first = array[1]
-	-- if (first and first:match("%@(.-)")) then
-	-- 	opts.relativeTo = assert(vars[first:sub(2)], "Invalid variable: " .. first)
-	-- 	table.remove(array, 1)
-	-- elseif first:match("^([A-z][A-z0-9]+)$") and modules[first] then
-	-- 	opts.relativeTo = modules[first]
-	-- 	table.remove(array, 1)
-	-- elseif (first == "~") then
-	-- 	local isClient = not RunService:IsServer()
-	-- 	opts.relativeTo =
-	-- 		homePath or (isClient and game:GetService("ReplicatedStorage") or game:GetService("ServerScriptService"))
-	-- 	table.remove(array, 1)
-	-- elseif (first == "") then -- root
-	-- 	opts.relativeTo = game
-	-- 	table.remove(array, 1)
-	-- elseif (first == ".") then -- remove script relativity.
-	-- 	table.remove(array, 1)
-	-- end
-
 	local isClient = not RunService:IsServer()
 
 	opts.homePath =
