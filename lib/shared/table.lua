@@ -19,8 +19,12 @@ function table.map(t, mapFn)
 	local mapped = {}
 
 	for i = 1, #t do
-		local nextValue = mapFn(t[i], i)
-		table.insert(mapped, nextValue)
+		local nextValue, nextKey = mapFn(t[i], i)
+		if nextKey then
+			mapped[nextKey] = nextValue
+		else
+			table.insert(mapped, nextValue)
+		end
 	end
 
 	return mapped
@@ -235,6 +239,18 @@ function table.join(...)
 		end
 	end
 	return newTable
+end
+
+function table.values(tbl)
+	local targetTable = {}
+
+	for _, value in next, tbl do
+		assert(type(value) == "string", "Keys should be strings")
+
+		targetTable[value] = true
+	end
+
+	return targetTable
 end
 
 return table
