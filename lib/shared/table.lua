@@ -241,13 +241,21 @@ function table.join(...)
 	return newTable
 end
 
+function table.keys(tbl)
+	local targetTable = {}
+
+	for key in next, tbl do
+		table.insert(targetTable, key);
+	end
+
+	return targetTable
+end
+
 function table.values(tbl)
 	local targetTable = {}
 
 	for _, value in next, tbl do
-		assert(type(value) == "string", "Keys should be strings")
-
-		targetTable[value] = true
+		table.insert(targetTable, value);
 	end
 
 	return targetTable
