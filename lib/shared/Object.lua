@@ -289,7 +289,7 @@ function Object:Extend(name, options)
 			-- luacov: enable
 
 			local obj = setmetatable({}, meta)
-			obj.new = throwOnNew
+			-- obj.new = throwOnNew
 
 			if type(class.constructor) == "function" then
 				class.constructor(obj, ...)
