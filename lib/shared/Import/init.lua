@@ -276,6 +276,11 @@ function prototype.lazy(relativePath)
 	)
 end
 
+function prototype.json(relativePath)
+	local text = import(relativePath)
+	return game:GetService("HttpService"):JSONDecode(text)
+end
+
 function prototype.async(relativePath, relativeTo, overrides)
 	local Promise = require(script.Parent.Promise)
 	return Promise.new(

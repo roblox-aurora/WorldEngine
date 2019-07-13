@@ -38,6 +38,7 @@ function Welds:WeldAccoutrement(character, accessory, handleName)
 			if characterAttachment then
 				self:WeldAttachments(accoutrementAttachment, characterAttachment)
 				accessory.Parent = character
+				return accessory
 			else
 				error("Could not find matching `" .. tostring(accoutrementAttachment.Name) .. "` attachment in character!")
 			end
