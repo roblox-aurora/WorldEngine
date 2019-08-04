@@ -159,6 +159,7 @@ function Object:Extend(name, options)
 	local abstract = options.abstract or false
 	local mutators = options.mutators or false
 	local operators = options.operators or false
+	local serializable = options.serializable or false
 
 	if (registry[name]) then
 		errorf("[Object] Duplicate class `%s`", name)
@@ -223,6 +224,34 @@ function Object:Extend(name, options)
 
 	-- Handler for X.new(...) - Calls X.constructor(...) internally
 	if not abstract then
+		if serializable then
+			function class.serialize(obj)
+				assert(class.instance(obj))
+				return obj:Serialize()
+			end
+
+			function class.deserialize(tbl)
+				error(tostring(name) .. ".deserialize not implemented.")
+			end
+
+			-- Default serializer
+			function class:Serialize()
+				if typeof(serializable) == "table" then
+					local result = {}
+					for _, prop in next, serializable do
+						if typeof(self["Get" .. prop]) == "function" then
+							result[prop] = self["Get" .. prop](self)
+						elseif rawget(self, prop) then
+							result[prop] = rawget(self, prop)
+						end
+					end
+					return result
+				else
+					error("Serialize must be override, or a table of props to be serialized must be passed to serializable")
+				end
+			end
+		end
+
 		function class.new(...)
 			refId = refId + 1
 			local allowNewProperties = true
